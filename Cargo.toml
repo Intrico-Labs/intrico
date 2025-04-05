@@ -1,11 +1,11 @@
 [package]
 name = "intrico"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "High-performance Quantum Computing Rust library to simulate, and visualize quantum circuits with precision and power."
 authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
 keywords = ["quantum-computing", "quantum-technology", "quantum", "rust",]
-categories = ["quantum-computing"]
+categories = ["development-tools", "embedded"]
 license = "MIT"
 repository = "https://github.com/SohamGhugare/intrico"
 readme = "README.md"
