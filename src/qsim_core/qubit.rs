@@ -1,12 +1,12 @@
 use std::fmt;
-use rusticle::complex::Complex;
+use rusticle::complex::{Complex, ComplexVector};
 
 /// Represents a quantum bit (qubit) with its state vector
 #[derive(Clone)]
 pub struct Qubit {
     /// The state vector of the qubit represented as a complex vector
     /// [alpha, beta] where |ψ⟩ = α|0⟩ + β|1⟩
-    state: [Complex; 2],
+    state: ComplexVector,
 }
 
 impl Qubit {
@@ -23,43 +23,43 @@ impl Qubit {
             panic!("State vector must be normalized");
         }
         Qubit {
-            state: [alpha, beta],
+            state: ComplexVector::new(vec![alpha, beta]),
         }
     }
 
     /// Creates a qubit in the |0⟩ state
     pub fn zero() -> Self {
         Qubit {
-            state: [Complex::new(1.0, 0.0), Complex::new(0.0, 0.0)],
+            state: ComplexVector::new(vec![Complex::new(1.0, 0.0), Complex::new(0.0, 0.0)]),
         }
     }
 
     /// Creates a qubit in the |1⟩ state
     pub fn one() -> Self {
         Qubit {
-            state: [Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)],
+            state: ComplexVector::new(vec![Complex::new(0.0, 0.0), Complex::new(1.0, 0.0)]),
         }
     }
 
     /// Returns the probability of measuring the qubit in the |0⟩ state
     pub fn probability_zero(&self) -> f64 {
-        self.state[0].norm_squared()
+        self.state.components[0].norm_squared()
     }
 
     /// Returns the probability of measuring the qubit in the |1⟩ state
     pub fn probability_one(&self) -> f64 {
-        self.state[1].norm_squared()
+        self.state.components[1].norm_squared()
     }
 
     /// Returns the state vector of the qubit
-    pub fn state_vector(&self) -> [Complex; 2] {
-        self.state
+    pub fn state_vector(&self) -> ComplexVector {
+        self.state.clone()
     }
 
     /// Returns true if the qubit is in a basis state (|0⟩ or |1⟩)
     pub fn is_basis_state(&self) -> bool {
-        (self.state[0] == Complex::new(1.0, 0.0) && self.state[1] == Complex::new(0.0, 0.0)) || 
-        (self.state[0] == Complex::new(0.0, 0.0) && self.state[1] == Complex::new(1.0, 0.0))
+        (self.state.components[0] == Complex::new(1.0, 0.0) && self.state.components[1] == Complex::new(0.0, 0.0)) || 
+        (self.state.components[0] == Complex::new(0.0, 0.0) && self.state.components[1] == Complex::new(1.0, 0.0))
     }
 }
 
@@ -71,7 +71,8 @@ impl Default for Qubit {
 
 impl fmt::Display for Qubit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let (alpha, beta) = (self.state[0], self.state[1]);
+        let alpha = self.state.components[0];
+        let beta = self.state.components[1];
         if alpha.norm_squared() == 1.0 {
             write!(f, "|ψ⟩ = |0⟩")
         } else if beta.norm_squared() == 1.0 {
@@ -84,7 +85,8 @@ impl fmt::Display for Qubit {
 
 impl fmt::Debug for Qubit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let (alpha, beta) = (self.state[0], self.state[1]);
+        let alpha = self.state.components[0];
+        let beta = self.state.components[1];
         if alpha.norm_squared() == 1.0 {
             write!(f, "|ψ⟩ = |0⟩")
         } else if beta.norm_squared() == 1.0 {

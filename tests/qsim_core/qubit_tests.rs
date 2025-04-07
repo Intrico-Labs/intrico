@@ -16,16 +16,16 @@ mod qubit_tests {
     fn test_basis_states() {
         // Test |0⟩ state
         let zero_state = Qubit::zero();
-        assert_eq!(zero_state.state_vector()[0], Complex::new(1.0, 0.0));
-        assert_eq!(zero_state.state_vector()[1], Complex::new(0.0, 0.0));
+        assert_eq!(zero_state.state_vector().components[0], Complex::new(1.0, 0.0));
+        assert_eq!(zero_state.state_vector().components[1], Complex::new(0.0, 0.0));
         assert_eq!(zero_state.probability_zero(), 1.0);
         assert_eq!(zero_state.probability_one(), 0.0);
         assert!(zero_state.is_basis_state());
 
         // Test |1⟩ state
         let one_state = Qubit::one();
-        assert_eq!(one_state.state_vector()[0], Complex::new(0.0, 0.0));
-        assert_eq!(one_state.state_vector()[1], Complex::new(1.0, 0.0));
+        assert_eq!(one_state.state_vector().components[0], Complex::new(0.0, 0.0));
+        assert_eq!(one_state.state_vector().components[1], Complex::new(1.0, 0.0));
         assert_eq!(one_state.probability_zero(), 0.0);
         assert_eq!(one_state.probability_one(), 1.0);
         assert!(one_state.is_basis_state());
