@@ -1,3 +1,3 @@
 pub mod qsim_core;
 
-pub use qsim_core::Qubit;
+pub use qsim_core::{Qubit, QuantumGate};
