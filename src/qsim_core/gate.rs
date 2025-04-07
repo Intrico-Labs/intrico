@@ -137,6 +137,6 @@ impl std::fmt::Display for QuantumGate {
 
 impl std::fmt::Debug for QuantumGate {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} - {}\n{:?}", self.name(), self.symbol(), self.matrix())
+        write!(f, "{}\n{:?}", self.name(), self.matrix())
     }
 }
