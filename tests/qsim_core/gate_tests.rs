@@ -76,7 +76,7 @@ mod gate_tests {
     fn test_t_gate_matrix() {
         let t_gate = QuantumGate::T;
         let matrix = t_gate.matrix();
-        let phase = Complex::new(0.0, (std::f64::consts::PI/4.0).exp());
+        let phase = Complex::new(0.0, std::f64::consts::PI/4.0).exp();
         
         assert_eq!(*matrix.get(0, 0), Complex::new(1.0, 0.0));
         assert_eq!(*matrix.get(0, 1), Complex::new(0.0, 0.0));
