@@ -95,7 +95,7 @@ impl QuantumGate {
             ]),
             
             QuantumGate::T => {
-                let phase = Complex::new(0.0, (std::f64::consts::PI/4.0).exp());
+                let phase = Complex::new(0.0, std::f64::consts::PI/4.0).exp();
                 Matrix::new(2, 2, vec![
                     Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
                     Complex::new(0.0, 0.0), phase,
