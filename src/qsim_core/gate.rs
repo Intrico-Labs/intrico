@@ -62,6 +62,18 @@ pub enum QuantumGate {
     T,
 }
 
+/// Represents a quantum gate operation in a circuit
+/// 
+/// This struct efficiently stores gate operations by using a compact representation
+/// that includes the gate type and the target qubit index.
+#[derive(Clone, Copy, Debug)]
+pub struct GateOp {
+    /// The type of quantum gate to apply
+    pub gate: QuantumGate,
+    /// The index of the qubit to which the gate should be applied
+    pub target: usize,
+}
+
 impl QuantumGate {
     /// Returns the matrix representation of the quantum gate.
     pub fn matrix(&self) -> Matrix<Complex> {
