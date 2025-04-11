@@ -5,6 +5,8 @@
 
 pub mod qubit;
 pub mod gate;
+pub mod circuit;
 
 pub use qubit::Qubit;
-pub use gate::QuantumGate;
+pub use gate::{QuantumGate, GateOp};
+pub use circuit::QuantumCircuit;
