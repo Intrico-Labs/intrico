@@ -1,5 +1,6 @@
-use intrico::qsim_core::gate::QuantumGate;
+use intrico::QuantumGate;
 use rusticle::complex::Complex;
+use rusticle::linalg::Matrix;
 
 /// Test suite for the QuantumGate type.
 /// 
@@ -12,76 +13,69 @@ mod gate_tests {
 
     /// Tests the matrix representation of the Pauli-X gate.
     #[test]
-    fn test_pauli_x_matrix() {
-        let x_gate = QuantumGate::X;
-        let matrix = x_gate.matrix();
-        
-        assert_eq!(*matrix.get(0, 0), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(0, 1), Complex::new(1.0, 0.0));
-        assert_eq!(*matrix.get(1, 0), Complex::new(1.0, 0.0));
-        assert_eq!(*matrix.get(1, 1), Complex::new(0.0, 0.0));
+    fn test_pauli_x_gate() {
+        let x = QuantumGate::X;
+        let expected = Matrix::new(2, 2, vec![
+            Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+        ]);
+        assert_eq!(x.matrix(), expected);
     }
 
     /// Tests the matrix representation of the Pauli-Y gate.
     #[test]
-    fn test_pauli_y_matrix() {
-        let y_gate = QuantumGate::Y;
-        let matrix = y_gate.matrix();
-        
-        assert_eq!(*matrix.get(0, 0), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(0, 1), Complex::new(0.0, -1.0));
-        assert_eq!(*matrix.get(1, 0), Complex::new(0.0, 1.0));
-        assert_eq!(*matrix.get(1, 1), Complex::new(0.0, 0.0));
+    fn test_pauli_y_gate() {
+        let y = QuantumGate::Y;
+        let expected = Matrix::new(2, 2, vec![
+            Complex::new(0.0, 0.0), Complex::new(0.0, -1.0),
+            Complex::new(0.0, 1.0), Complex::new(0.0, 0.0),
+        ]);
+        assert_eq!(y.matrix(), expected);
     }
 
     /// Tests the matrix representation of the Pauli-Z gate.
     #[test]
-    fn test_pauli_z_matrix() {
-        let z_gate = QuantumGate::Z;
-        let matrix = z_gate.matrix();
-        
-        assert_eq!(*matrix.get(0, 0), Complex::new(1.0, 0.0));
-        assert_eq!(*matrix.get(0, 1), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(1, 0), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(1, 1), Complex::new(-1.0, 0.0));
+    fn test_pauli_z_gate() {
+        let z = QuantumGate::Z;
+        let expected = Matrix::new(2, 2, vec![
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(-1.0, 0.0),
+        ]);
+        assert_eq!(z.matrix(), expected);
     }
 
     /// Tests the matrix representation of the Hadamard gate.
     #[test]
-    fn test_hadamard_matrix() {
-        let h_gate = QuantumGate::H;
-        let matrix = h_gate.matrix();
-        let factor = 1.0/2.0_f64.sqrt();
-        
-        assert!((matrix.get(0, 0).real - factor).abs() < 1e-10);
-        assert!((matrix.get(0, 1).real - factor).abs() < 1e-10);
-        assert!((matrix.get(1, 0).real - factor).abs() < 1e-10);
-        assert!((matrix.get(1, 1).real + factor).abs() < 1e-10);
+    fn test_hadamard_gate() {
+        let h = QuantumGate::H;
+        let factor = Complex::new(1.0/2.0_f64.sqrt(), 0.0);
+        let expected = Matrix::new(2, 2, vec![
+            factor, factor,
+            factor, -factor,
+        ]);
+        assert_eq!(h.matrix(), expected);
     }
 
     /// Tests the matrix representation of the S gate.
     #[test]
-    fn test_s_gate_matrix() {
-        let s_gate = QuantumGate::S;
-        let matrix = s_gate.matrix();
-        
-        assert_eq!(*matrix.get(0, 0), Complex::new(1.0, 0.0));
-        assert_eq!(*matrix.get(0, 1), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(1, 0), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(1, 1), Complex::new(0.0, 1.0));
+    fn test_s_gate() {
+        let s = QuantumGate::S;
+        let expected = Matrix::new(2, 2, vec![
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 1.0),
+        ]);
+        assert_eq!(s.matrix(), expected);
     }
 
     /// Tests the matrix representation of the T gate.
     #[test]
-    fn test_t_gate_matrix() {
-        let t_gate = QuantumGate::T;
-        let matrix = t_gate.matrix();
+    fn test_t_gate() {
+        let t = QuantumGate::T;
         let phase = Complex::new(0.0, std::f64::consts::PI/4.0).exp();
-        
-        assert_eq!(*matrix.get(0, 0), Complex::new(1.0, 0.0));
-        assert_eq!(*matrix.get(0, 1), Complex::new(0.0, 0.0));
-        assert_eq!(*matrix.get(1, 0), Complex::new(0.0, 0.0));
-        assert!((*matrix.get(1, 1) - phase).norm_squared() < 1e-10);
+        let expected = Matrix::new(2, 2, vec![
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), phase,
+        ]);
+        assert_eq!(t.matrix(), expected);
     }
-
 } 
