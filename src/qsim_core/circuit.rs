@@ -164,7 +164,7 @@ impl QuantumCircuit {
     /// q0: ───H───
     /// q1: ───X───
     /// ```
-    pub fn display_ascii(&self) -> String {
+    pub fn display(&self) -> String {
         if self.operations.is_empty() {
             return (0..self.num_qubits)
                 .map(|i| format!("q{}: ───", i))
@@ -172,62 +172,88 @@ impl QuantumCircuit {
                 .join("\n");
         }
 
-        // Find the maximum number of gates on any qubit
-        let max_gates = self.operations
-            .iter()
-            .fold(vec![0; self.num_qubits], |mut counts, op| {
-                counts[op.target] += 1;
-                if let Some(control) = op.control {
-                    counts[control] += 1;
-                }
-                counts
-            })
-            .into_iter()
-            .max()
-            .unwrap_or(0);
-
-        // Create a grid to represent the circuit
-        let mut grid = vec![vec![' '; max_gates * 6 + 4]; self.num_qubits];
+        // Initialize lines for each qubit
+        let mut lines = vec![String::new(); self.num_qubits];
         
-        // Draw the qubit lines
-        for i in 0..self.num_qubits {
-            for j in 0..max_gates * 6 + 4 {
-                grid[i][j] = '─';
-            }
+        // Add qubit labels
+        for (i, line) in lines.iter_mut().enumerate() {
+            *line = format!("q{}: ", i);
         }
 
-        // Place the gates
+        // Process each operation
         for op in &self.operations {
-            let qubit = op.target;
-            let gate_pos = self.operations
-                .iter()
-                .filter(|o| o.target == qubit || o.control == Some(qubit))
-                .position(|o| o.gate == op.gate && o.target == op.target && o.control == op.control)
-                .unwrap() * 6 + 2;
-            
-            // Place the gate symbol
-            grid[qubit][gate_pos] = op.gate.symbol().chars().next().unwrap();
+            // Add spacing for each step
+            for line in &mut lines {
+                line.push_str("    ");
+            }
 
-            // Draw control line if this is a controlled gate
-            if let Some(control) = op.control {
-                // Draw vertical line
-                for i in control.min(qubit) + 1..control.max(qubit) {
-                    grid[i][gate_pos] = '│';
+            let step_col = (lines[0].len() - 4) / 4;  // Current step column
+
+            match op.gate {
+                QuantumGate::H => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─H─ ",
+                    );
+                },
+                QuantumGate::X => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─X─ ",
+                    );
+                },
+                QuantumGate::Y => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─Y─ ",
+                    );
+                },
+                QuantumGate::Z => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─Z─ ",
+                    );
+                },
+                QuantumGate::S => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─S─ ",
+                    );
+                },
+                QuantumGate::T => {
+                    lines[op.target].replace_range(
+                        step_col * 4..(step_col * 4 + 4),
+                        "─T─ ",
+                    );
+                },
+                QuantumGate::CNOT => {
+                    if let Some(control) = op.control {
+                        // Draw control dot
+                        lines[control].replace_range(
+                            step_col * 4..(step_col * 4 + 4),
+                            "─●─ ",
+                        );
+                        // Draw target X
+                        lines[op.target].replace_range(
+                            step_col * 4..(step_col * 4 + 4),
+                            "─X─ ",
+                        );
+                        // Add vertical connector if different lines
+                        if control != op.target {
+                            for mid in (control.min(op.target) + 1)..control.max(op.target) {
+                                lines[mid].replace_range(
+                                    step_col * 4 + 1..(step_col * 4 + 3),
+                                    "│",
+                                );
+                            }
+                        }
+                    }
                 }
-                // Draw control dot
-                grid[control][gate_pos] = '●';
             }
         }
 
-        // Convert the grid to a string
-        let mut result = String::new();
-        for (i, row) in grid.iter().enumerate() {
-            result.push_str(&format!("q{}: ", i));
-            result.extend(row.iter());
-            result.push('\n');
-        }
-
-        result
+        // Join all lines with newlines
+        lines.join("\n")
     }
 }
 
