@@ -156,7 +156,7 @@ impl QuantumCircuit {
     /// let mut qc = QuantumCircuit::new(2);
     /// qc.h(0);
     /// qc.x(1);
-    /// println!("{}", qc.display_ascii());
+    /// println!("{}", qc.display());
     /// ```
     /// 
     /// Output:
