@@ -11,7 +11,7 @@
 //! 
 //! ```toml
 //! [dependencies]
-//! intrico = "0.3.2"
+//! intrico = "0.3.6"
 //! ```
 //! 
 //! or use `cargo add intrico` to add it to your project.
@@ -25,7 +25,7 @@
 //! ## Example
 //! 
 //! ```rust
-//! use intrico::qsim_core::{Qubit, QuantumGate};
+//! use intrico::{Qubit, QuantumGate};
 //! 
 //! fn main() {
 //!     // Create a qubit in the |0⟩ state
@@ -40,4 +40,4 @@
 
 pub mod qsim_core;
 
-pub use qsim_core::{Qubit, QuantumGate};
+pub use qsim_core::{Qubit, QuantumGate, QuantumCircuit};
