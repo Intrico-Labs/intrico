@@ -128,6 +128,79 @@ impl QuantumCircuit {
     pub fn num_operations(&self) -> usize {
         self.operations.len()
     }
+
+    /// Displays the quantum circuit in ASCII format
+    /// 
+    /// This method generates a text-based representation of the quantum circuit,
+    /// showing the qubit lines and gates in a circuit diagram format.
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(2);
+    /// qc.h(0);
+    /// qc.x(1);
+    /// println!("{}", qc.display_ascii());
+    /// ```
+    /// 
+    /// Output:
+    /// ```text
+    /// q0: ───H───
+    /// q1: ───X───
+    /// ```
+    pub fn display_ascii(&self) -> String {
+        if self.operations.is_empty() {
+            return (0..self.num_qubits)
+                .map(|i| format!("q{}: ───", i))
+                .collect::<Vec<_>>()
+                .join("\n");
+        }
+
+        // Find the maximum number of gates on any qubit
+        let max_gates = self.operations
+            .iter()
+            .fold(vec![0; self.num_qubits], |mut counts, op| {
+                counts[op.target] += 1;
+                counts
+            })
+            .into_iter()
+            .max()
+            .unwrap_or(0);
+
+        // Create a grid to represent the circuit
+        let mut grid = vec![vec![' '; max_gates * 4 + 4]; self.num_qubits];
+        
+        // Draw the qubit lines
+        for i in 0..self.num_qubits {
+            for j in 0..max_gates * 4 + 4 {
+                grid[i][j] = '─';
+            }
+        }
+
+        // Place the gates
+        for op in &self.operations {
+            let qubit = op.target;
+            let gate_pos = self.operations
+                .iter()
+                .filter(|o| o.target == qubit)
+                .position(|o| o.gate == op.gate && o.target == op.target)
+                .unwrap() * 4 + 2;
+            
+            // Place the gate symbol
+            grid[qubit][gate_pos] = op.gate.symbol().chars().next().unwrap();
+        }
+
+        // Convert the grid to a string
+        let mut result = String::new();
+        for (i, row) in grid.iter().enumerate() {
+            result.push_str(&format!("q{}: ", i));
+            result.extend(row.iter());
+            result.push('\n');
+        }
+
+        result
+    }
 }
 
 impl fmt::Display for QuantumCircuit {
