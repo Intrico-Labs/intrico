@@ -60,18 +60,51 @@ pub enum QuantumGate {
     /// [0 e^(iπ/4)]
     /// ```
     T,
+    
+    /// The Controlled-NOT gate
+    /// 
+    /// Matrix representation:
+    /// ```text
+    /// [1 0 0 0]
+    /// [0 1 0 0]
+    /// [0 0 0 1]
+    /// [0 0 1 0]
+    /// ```
+    CNOT,
 }
 
 /// Represents a quantum gate operation in a circuit
 /// 
 /// This struct efficiently stores gate operations by using a compact representation
 /// that includes the gate type and the target qubit index.
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct GateOp {
-    /// The type of quantum gate to apply
+    /// The quantum gate to apply
     pub gate: QuantumGate,
-    /// The index of the qubit to which the gate should be applied
+    /// The target qubit index
     pub target: usize,
+    /// The control qubit index (for controlled gates like CNOT)
+    pub control: Option<usize>,
+}
+
+impl GateOp {
+    /// Creates a new single-qubit gate operation
+    pub fn new(gate: QuantumGate, target: usize) -> Self {
+        GateOp {
+            gate,
+            target,
+            control: None,
+        }
+    }
+
+    /// Creates a new controlled gate operation
+    pub fn controlled(gate: QuantumGate, control: usize, target: usize) -> Self {
+        GateOp {
+            gate,
+            target,
+            control: Some(control),
+        }
+    }
 }
 
 impl QuantumGate {
@@ -113,6 +146,13 @@ impl QuantumGate {
                     Complex::new(0.0, 0.0), phase,
                 ])
             },
+            
+            QuantumGate::CNOT => Matrix::new(4, 4, vec![
+                Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+                Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+                Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
+                Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            ]),
         }
     }
 
@@ -125,6 +165,7 @@ impl QuantumGate {
             QuantumGate::H => "Hadamard",
             QuantumGate::S => "S",
             QuantumGate::T => "T",
+            QuantumGate::CNOT => "CNOT",
         }
     }
 
@@ -137,6 +178,7 @@ impl QuantumGate {
             QuantumGate::H => "H",
             QuantumGate::S => "S",
             QuantumGate::T => "T",
+            QuantumGate::CNOT => "⊕",
         }
     }
 }

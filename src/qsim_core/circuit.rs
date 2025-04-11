@@ -74,6 +74,21 @@ impl QuantumCircuit {
         self.add_gate(QuantumGate::T, target);
     }
 
+    /// Applies a CNOT gate with the specified control and target qubits
+    /// 
+    /// # Arguments
+    /// * `control` - The index of the control qubit
+    /// * `target` - The index of the target qubit
+    /// 
+    /// # Panics
+    /// Panics if either qubit index is out of bounds
+    pub fn cnot(&mut self, control: usize, target: usize) {
+        if control >= self.num_qubits || target >= self.num_qubits {
+            panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
+        }
+        self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target));
+    }
+
     /// Adds a gate operation to the circuit
     /// 
     /// # Arguments
@@ -87,7 +102,7 @@ impl QuantumCircuit {
             panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
                    target, self.num_qubits);
         }
-        self.operations.push(GateOp { gate, target });
+        self.operations.push(GateOp::new(gate, target));
     }
 
     /// Executes the circuit on a set of qubits
@@ -162,6 +177,9 @@ impl QuantumCircuit {
             .iter()
             .fold(vec![0; self.num_qubits], |mut counts, op| {
                 counts[op.target] += 1;
+                if let Some(control) = op.control {
+                    counts[control] += 1;
+                }
                 counts
             })
             .into_iter()
@@ -183,12 +201,22 @@ impl QuantumCircuit {
             let qubit = op.target;
             let gate_pos = self.operations
                 .iter()
-                .filter(|o| o.target == qubit)
-                .position(|o| o.gate == op.gate && o.target == op.target)
+                .filter(|o| o.target == qubit || o.control == Some(qubit))
+                .position(|o| o.gate == op.gate && o.target == op.target && o.control == op.control)
                 .unwrap() * 4 + 2;
             
             // Place the gate symbol
             grid[qubit][gate_pos] = op.gate.symbol().chars().next().unwrap();
+
+            // Draw control line if this is a controlled gate
+            if let Some(control) = op.control {
+                // Draw vertical line
+                for i in control.min(qubit) + 1..control.max(qubit) {
+                    grid[i][gate_pos] = '│';
+                }
+                // Draw control dot
+                grid[control][gate_pos] = '●';
+            }
         }
 
         // Convert the grid to a string
