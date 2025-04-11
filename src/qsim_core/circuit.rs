@@ -187,11 +187,11 @@ impl QuantumCircuit {
             .unwrap_or(0);
 
         // Create a grid to represent the circuit
-        let mut grid = vec![vec![' '; max_gates * 4 + 4]; self.num_qubits];
+        let mut grid = vec![vec![' '; max_gates * 6 + 4]; self.num_qubits];
         
         // Draw the qubit lines
         for i in 0..self.num_qubits {
-            for j in 0..max_gates * 4 + 4 {
+            for j in 0..max_gates * 6 + 4 {
                 grid[i][j] = '─';
             }
         }
@@ -203,7 +203,7 @@ impl QuantumCircuit {
                 .iter()
                 .filter(|o| o.target == qubit || o.control == Some(qubit))
                 .position(|o| o.gate == op.gate && o.target == op.target && o.control == op.control)
-                .unwrap() * 4 + 2;
+                .unwrap() * 6 + 2;
             
             // Place the gate symbol
             grid[qubit][gate_pos] = op.gate.symbol().chars().next().unwrap();
