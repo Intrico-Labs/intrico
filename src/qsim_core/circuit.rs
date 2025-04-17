@@ -87,7 +87,7 @@ impl QuantumCircuit {
             panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
         }
         let step = self.operations.iter()
-            .filter(|op| op.target == target)
+            .filter(|op| op.target == control)
             .map(|op| op.step)
             .max()
             .map(|s| s + 1)
@@ -176,7 +176,12 @@ impl fmt::Display for QuantumCircuit {
         writeln!(f, "Quantum Circuit ({} qubits, {} operations):", 
                  self.num_qubits, self.num_operations())?;
         for (i, op) in self.operations.iter().enumerate() {
-            writeln!(f, "  {}. {} on qubit {} (Step: {})", i + 1, op.gate, op.target, op.step)?;
+            if op.gate == QuantumGate::CNOT {
+                writeln!(f, "  {}. {} on qubit {} by {} (Step: {})", i + 1, op.gate, op.target, op.control.unwrap(), op.step)?;
+            } else {
+                writeln!(f, "  {}. {} on qubit {} (Step: {})", i + 1, op.gate, op.target, op.step)?;
+            }
+            
         }
         Ok(())
     }

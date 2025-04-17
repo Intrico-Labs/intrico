@@ -183,7 +183,7 @@ impl QuantumGate {
             QuantumGate::H => "H",
             QuantumGate::S => "S",
             QuantumGate::T => "T",
-            QuantumGate::CNOT => "X",
+            QuantumGate::CNOT => "CX",
         }
     }
 }
