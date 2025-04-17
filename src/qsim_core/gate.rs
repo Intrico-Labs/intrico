@@ -85,26 +85,31 @@ pub struct GateOp {
     pub target: usize,
     /// The control qubit index (for controlled gates like CNOT)
     pub control: Option<usize>,
+    /// The step in the circuit where this operation occurs
+    pub step: usize,
 }
 
 impl GateOp {
     /// Creates a new single-qubit gate operation
-    pub fn new(gate: QuantumGate, target: usize) -> Self {
+    pub fn new(gate: QuantumGate, target: usize, step: usize) -> Self {
         GateOp {
             gate,
             target,
             control: None,
+            step, 
         }
     }
 
     /// Creates a new controlled gate operation
-    pub fn controlled(gate: QuantumGate, control: usize, target: usize) -> Self {
+    pub fn controlled(gate: QuantumGate, control: usize, target: usize, step: usize) -> Self {
         GateOp {
             gate,
             target,
             control: Some(control),
+            step, 
         }
     }
+
 }
 
 impl QuantumGate {
@@ -178,7 +183,7 @@ impl QuantumGate {
             QuantumGate::H => "H",
             QuantumGate::S => "S",
             QuantumGate::T => "T",
-            QuantumGate::CNOT => "x",
+            QuantumGate::CNOT => "X",
         }
     }
 }

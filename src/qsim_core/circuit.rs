@@ -86,7 +86,13 @@ impl QuantumCircuit {
         if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
         }
-        self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target));
+        let step = self.operations.iter()
+            .filter(|op| op.target == target)
+            .map(|op| op.step)
+            .max()
+            .map(|s| s + 1)
+            .unwrap_or(0);
+        self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target, step));
     }
 
     /// Adds a gate operation to the circuit
@@ -102,7 +108,13 @@ impl QuantumCircuit {
             panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
                    target, self.num_qubits);
         }
-        self.operations.push(GateOp::new(gate, target));
+        let step = self.operations.iter()
+            .filter(|op| op.target == target)
+            .map(|op| op.step)
+            .max()
+            .map(|s| s + 1)
+            .unwrap_or(0);
+        self.operations.push(GateOp::new(gate, target, step));
     }
 
     /// Executes the circuit on a set of qubits
@@ -144,116 +156,18 @@ impl QuantumCircuit {
         self.operations.len()
     }
 
-    /// Displays the quantum circuit in ASCII format
-    /// 
-    /// This method generates a text-based representation of the quantum circuit,
-    /// showing the qubit lines and gates in a circuit diagram format.
-    /// 
-    /// # Examples
-    /// ```
-    /// use intrico::QuantumCircuit;
-    /// 
-    /// let mut qc = QuantumCircuit::new(2);
-    /// qc.h(0);
-    /// qc.x(1);
-    /// println!("{}", qc.display());
-    /// ```
-    /// 
-    /// Output:
-    /// ```text
-    /// q0: ───H───
-    /// q1: ───X───
-    /// ```
-    pub fn display(&self) -> String {
-        if self.operations.is_empty() {
-            return (0..self.num_qubits)
-                .map(|i| format!("q{}: ───", i))
-                .collect::<Vec<_>>()
-                .join("\n");
-        }
+    /// Displays the quantum circuit in ASCII format to stdout
+    pub fn display(&self) {
+        let height = 2 * self.num_qubits - 1;
+        let mut lines = vec![String::new(); height];
 
-        // Initialize lines for each qubit
-        let mut lines = vec![String::new(); self.num_qubits];
         
-        // Add qubit labels
-        for (i, line) in lines.iter_mut().enumerate() {
-            *line = format!("q{}: ", i);
+        
+
+        // Print the circuit
+        for line in lines {
+            println!("{}", line);
         }
-
-        // Process each operation
-        for op in &self.operations {
-            // Add spacing for each step
-            for line in &mut lines {
-                line.push_str("    ");
-            }
-
-            let step_col = (lines[0].len() - 4) / 4;  // Current step column
-
-            match op.gate {
-                QuantumGate::H => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─H─ ",
-                    );
-                },
-                QuantumGate::X => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─X─ ",
-                    );
-                },
-                QuantumGate::Y => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─Y─ ",
-                    );
-                },
-                QuantumGate::Z => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─Z─ ",
-                    );
-                },
-                QuantumGate::S => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─S─ ",
-                    );
-                },
-                QuantumGate::T => {
-                    lines[op.target].replace_range(
-                        step_col * 4..(step_col * 4 + 4),
-                        "─T─ ",
-                    );
-                },
-                QuantumGate::CNOT => {
-                    if let Some(control) = op.control {
-                        // Draw control dot
-                        lines[control].replace_range(
-                            step_col * 4..(step_col * 4 + 4),
-                            "─●─ ",
-                        );
-                        // Draw target X
-                        lines[op.target].replace_range(
-                            step_col * 4..(step_col * 4 + 4),
-                            "─X─ ",
-                        );
-                        // Add vertical connector if different lines
-                        if control != op.target {
-                            for mid in (control.min(op.target) + 1)..control.max(op.target) {
-                                lines[mid].replace_range(
-                                    step_col * 4 + 1..(step_col * 4 + 3),
-                                    "│",
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Join all lines with newlines
-        lines.join("\n")
     }
 }
 
@@ -262,7 +176,7 @@ impl fmt::Display for QuantumCircuit {
         writeln!(f, "Quantum Circuit ({} qubits, {} operations):", 
                  self.num_qubits, self.num_operations())?;
         for (i, op) in self.operations.iter().enumerate() {
-            writeln!(f, "  {}. {} on qubit {}", i + 1, op.gate, op.target)?;
+            writeln!(f, "  {}. {} on qubit {} (Step: {})", i + 1, op.gate, op.target, op.step)?;
         }
         Ok(())
     }
