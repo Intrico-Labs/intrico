@@ -158,68 +158,83 @@ impl QuantumCircuit {
 
     /// Displays the quantum circuit in ASCII format to stdout
     pub fn display(&self) {
-        let num_steps = self.num_operations()-1;
-        let height = 2 * self.num_qubits - 1;
-        let mut grid = vec![vec!["───".to_string(); num_steps]; height];
+        // Handle empty circuit case
+        if self.operations.is_empty() {
+            for i in 0..self.num_qubits {
+                println!("q{}: ───", i);
+            }
+            return;
+        }
 
+        let max_step = self.operations.iter()
+            .map(|op| op.step)
+            .max()
+            .unwrap_or(0);
+        
+        let height = 2 * self.num_qubits - 1;
+        
+        // Misc symbols
+        let wire = "───";
+        let vert_line = " │ ";
+        let ctrl_dot = "─●─";
+        
+        let mut grid = vec![vec![wire; max_step + 1]; height];
+        
         for op in &self.operations {
             let row = 2 * op.target;
             let col = op.step;
-
+            
+            // Skip if the operation is out of bounds (safety check)
+            if row >= height || col > max_step {
+                continue;
+            }
+            
             match op.gate {
-                QuantumGate::X => {
-                    grid[row][col] = "─X─".to_string();
-                },
-                QuantumGate::Y => {
-                    grid[row][col] = "─Y─".to_string();
-                },
-                QuantumGate::Z => {
-                    grid[row][col] = "─Z─".to_string();
-                },
-                QuantumGate::H => {
-                    grid[row][col] = "─H─".to_string();
-                },
-                QuantumGate::S => {
-                    grid[row][col] = "─S─".to_string();
-                },
-                QuantumGate::T => {
-                    grid[row][col] = "─T─".to_string();
+                QuantumGate::X | QuantumGate::Y | QuantumGate::Z | 
+                QuantumGate::H | QuantumGate::S | QuantumGate::T => {
+                    grid[row][col] = op.gate.display_symbol();
                 },
                 QuantumGate::CNOT => {
-                    let ctrl_row = 2*op.control.unwrap();
-                    grid[ctrl_row][col] = "─●─".to_string();
-                    grid[row][col] = "─x─".to_string();
-                    let (start, end) = if ctrl_row < row {
-                        (ctrl_row + 1, row)
-                    } else {
-                        (row + 1, ctrl_row)
-                    };
-                    for r in start..end {
-                        grid[r][col] = " │ ".to_string();
+                    if let Some(control) = op.control {
+                        let ctrl_row = 2 * control;
+                        
+                        // Skip if control is out of bounds
+                        if ctrl_row >= height {
+                            continue;
+                        }
+                        
+                        grid[ctrl_row][col] = ctrl_dot;  
+                        grid[row][col] = op.gate.display_symbol();
+                        
+                        let (start, end) = if ctrl_row < row {
+                            (ctrl_row + 1, row)
+                        } else {
+                            (row + 1, ctrl_row)
+                        };
+                        
+                        for r in start..end {
+                            grid[r][col] = vert_line; 
+                        }
                     }
                 },
             }
         }
-
         
-        
-
-        // Print the circuit
-        for (i, row) in grid.iter().enumerate() {
-            if i%2 == 0 {
+        for i in 0..height {
+            if i % 2 == 0 {
                 print!("q{}: ", i/2);
             } else {
-                print!("    ");
+                print!("    ");  
             }
-
-            for cell in row {
-                if i%2 == 1 && cell != " │ " {
-                    print!("   ");
+            
+            // Print the row contents
+            for j in 0..=max_step {
+                if i % 2 == 1 && grid[i][j] != vert_line {
+                    print!("   ");  
                 } else {
-                    print!("{}", cell)
+                    print!("{}", grid[i][j]);
                 }
             }
-
             println!();
         }
     }

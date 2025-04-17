@@ -186,6 +186,19 @@ impl QuantumGate {
             QuantumGate::CNOT => "CX",
         }
     }
+    
+    /// Returns the display symbol with connecting wires for ASCII circuit diagrams.
+    pub fn display_symbol(&self) -> &'static str {
+        match self {
+            QuantumGate::X => "─X─",
+            QuantumGate::Y => "─Y─",
+            QuantumGate::Z => "─Z─",
+            QuantumGate::H => "─H─",
+            QuantumGate::S => "─S─",
+            QuantumGate::T => "─T─",
+            QuantumGate::CNOT => "─x─",
+        }
+    }
 }
 
 impl std::fmt::Display for QuantumGate {
