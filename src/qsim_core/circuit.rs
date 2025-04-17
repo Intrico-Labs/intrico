@@ -158,15 +158,69 @@ impl QuantumCircuit {
 
     /// Displays the quantum circuit in ASCII format to stdout
     pub fn display(&self) {
+        let num_steps = self.num_operations()-1;
         let height = 2 * self.num_qubits - 1;
-        let mut lines = vec![String::new(); height];
+        let mut grid = vec![vec!["───".to_string(); num_steps]; height];
+
+        for op in &self.operations {
+            let row = 2 * op.target;
+            let col = op.step;
+
+            match op.gate {
+                QuantumGate::X => {
+                    grid[row][col] = "─X─".to_string();
+                },
+                QuantumGate::Y => {
+                    grid[row][col] = "─Y─".to_string();
+                },
+                QuantumGate::Z => {
+                    grid[row][col] = "─Z─".to_string();
+                },
+                QuantumGate::H => {
+                    grid[row][col] = "─H─".to_string();
+                },
+                QuantumGate::S => {
+                    grid[row][col] = "─S─".to_string();
+                },
+                QuantumGate::T => {
+                    grid[row][col] = "─T─".to_string();
+                },
+                QuantumGate::CNOT => {
+                    let ctrl_row = 2*op.control.unwrap();
+                    grid[ctrl_row][col] = "─●─".to_string();
+                    grid[row][col] = "─x─".to_string();
+                    let (start, end) = if ctrl_row < row {
+                        (ctrl_row + 1, row)
+                    } else {
+                        (row + 1, ctrl_row)
+                    };
+                    for r in start..end {
+                        grid[r][col] = " │ ".to_string();
+                    }
+                },
+            }
+        }
 
         
         
 
         // Print the circuit
-        for line in lines {
-            println!("{}", line);
+        for (i, row) in grid.iter().enumerate() {
+            if i%2 == 0 {
+                print!("q{}: ", i/2);
+            } else {
+                print!("    ");
+            }
+
+            for cell in row {
+                if i%2 == 1 && cell != " │ " {
+                    print!("   ");
+                } else {
+                    print!("{}", cell)
+                }
+            }
+
+            println!();
         }
     }
 }

@@ -14,4 +14,6 @@ fn main() {
     qc.x(0);
 
     println!("{}", qc);
+
+    qc.display();
 }
