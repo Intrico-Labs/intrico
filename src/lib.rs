@@ -11,7 +11,7 @@
 //! 
 //! ```toml
 //! [dependencies]
-//! intrico = "0.3.6"
+//! intrico = "0.4.0"
 //! ```
 //! 
 //! or use `cargo add intrico` to add it to your project.
@@ -20,7 +20,8 @@
 //! 
 //! | Feature | Description |
 //! |---------|-------------|
-//! | `qsim_core` | Core quantum simulation functionality including qubits and quantum gates |
+//! | `core` | Core quantum simulation functionality including qubits and quantum gates |
+//! | `circuit` | Quantum circuit functionality including visualisations |
 //! 
 //! ## Example
 //! 
@@ -38,6 +39,8 @@
 //! }
 //! ```
 
-pub mod qsim_core;
+pub mod core;
+pub mod circuit;
 
-pub use qsim_core::{Qubit, QuantumGate, QuantumCircuit};
+pub use core::{Qubit, QuantumGate};
+pub use circuit::QuantumCircuit;

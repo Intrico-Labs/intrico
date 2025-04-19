@@ -1,6 +1,6 @@
 use std::fmt;
 use rusticle::complex::{Complex, ComplexVector};
-use crate::qsim_core::gate::QuantumGate;
+use crate::core::gate::QuantumGate;
 
 /// Represents a quantum bit (qubit) with its state vector
 #[derive(Clone)]
@@ -22,7 +22,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// // Create a qubit in the |+⟩ state (equal superposition)
     /// let alpha = Complex::new(1.0/2.0_f64.sqrt(), 0.0);
@@ -44,7 +44,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::zero();
     /// assert_eq!(qubit.state_vector().components[0], Complex::new(1.0, 0.0));
@@ -61,7 +61,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::one();
     /// assert_eq!(qubit.state_vector().components[0], Complex::new(0.0, 0.0));
@@ -78,7 +78,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::zero();
     /// assert_eq!(qubit.probability_zero(), 1.0);
@@ -95,7 +95,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::zero();
     /// assert_eq!(qubit.probability_one(), 0.0);
@@ -112,7 +112,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::zero();
     /// let state = qubit.state_vector();
@@ -131,7 +131,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::{Qubit, QuantumGate};
+    /// use intrico::{Qubit, QuantumGate};
     /// 
     /// let mut qubit = Qubit::zero();
     /// qubit.apply(QuantumGate::X);
@@ -148,7 +148,7 @@ impl Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::zero();
     /// assert!(qubit.is_basis_state());
@@ -165,7 +165,7 @@ impl Default for Qubit {
     /// # Examples
     /// ```
     /// use rusticle::complex::Complex;
-    /// use intrico::qsim_core::Qubit;
+    /// use intrico::Qubit;
     /// 
     /// let qubit = Qubit::default();
     /// assert_eq!(qubit.state_vector().components[0], Complex::new(1.0, 0.0));

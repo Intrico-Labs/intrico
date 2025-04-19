@@ -1,6 +1,6 @@
 use std::fmt;
-use crate::qsim_core::gate::{QuantumGate, GateOp};
-use crate::qsim_core::qubit::Qubit;
+use crate::core::gate::{QuantumGate, GateOp};
+use crate::core::qubit::Qubit;
 
 /// Represents a quantum circuit that can be built and executed
 /// 

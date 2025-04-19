@@ -1,4 +1,4 @@
-use intrico::qsim_core::qubit::Qubit;
+use intrico::core::qubit::Qubit;
 use rusticle::complex::Complex;
 
 /// Test suite for the Qubit type.

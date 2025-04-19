@@ -12,7 +12,7 @@ OR add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-intrico = "0.3.2"
+intrico = "0.4.0"
 ```
 
 ## Quick Start
