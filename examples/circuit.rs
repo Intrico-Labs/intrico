@@ -12,7 +12,7 @@ fn main() {
     // qc.z(2);
     // qc.cnot(2, 0);
     // qc.x(0);
-    qc.cnot(0, 1);
+    qc.cx(0, 1);
 
     println!("{}", qc);
 

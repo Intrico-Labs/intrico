@@ -95,6 +95,18 @@ impl QuantumCircuit {
         self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target, step));
     }
 
+    /// Applies a CNOT gate with the specified control and target qubits
+    /// 
+    /// # Arguments
+    /// * `control` - The index of the control qubit
+    /// * `target` - The index of the target qubit
+    /// 
+    /// # Panics
+    /// Panics if either qubit index is out of bounds
+    pub fn cx(&mut self, control: usize, target: usize) {
+        self.cnot(control, target);
+    }
+
     /// Adds a gate operation to the circuit
     /// 
     /// # Arguments
