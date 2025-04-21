@@ -71,6 +71,9 @@ pub enum QuantumGate {
     /// [0 0 1 0]
     /// ```
     CNOT,
+
+    /// Measurement
+    Measure
 }
 
 /// Represents a quantum gate operation in a circuit
@@ -85,6 +88,8 @@ pub struct GateOp {
     pub target: usize,
     /// The control qubit index (for controlled gates like CNOT)
     pub control: Option<usize>,
+    /// The classical bit index (for storing results)
+    pub classical_bit: Option<usize>,
     /// The step in the circuit where this operation occurs
     pub step: usize,
 }
@@ -96,6 +101,7 @@ impl GateOp {
             gate,
             target,
             control: None,
+            classical_bit: None,
             step, 
         }
     }
@@ -106,6 +112,7 @@ impl GateOp {
             gate,
             target,
             control: Some(control),
+            classical_bit: None,
             step, 
         }
     }
@@ -158,6 +165,11 @@ impl QuantumGate {
                 Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
                 Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
             ]),
+
+            QuantumGate::Measure => {
+                // Return zero for measurement matrix
+                Matrix::zeros(1, 1)
+            }
         }
     }
 
@@ -171,6 +183,7 @@ impl QuantumGate {
             QuantumGate::S => "S",
             QuantumGate::T => "T",
             QuantumGate::CNOT => "CNOT",
+            QuantumGate::Measure => "Measurement"
         }
     }
 
@@ -184,6 +197,7 @@ impl QuantumGate {
             QuantumGate::S => "S",
             QuantumGate::T => "T",
             QuantumGate::CNOT => "CX",
+            QuantumGate::Measure => "M"
         }
     }
     
@@ -197,6 +211,7 @@ impl QuantumGate {
             QuantumGate::S => "─S─",
             QuantumGate::T => "─T─",
             QuantumGate::CNOT => "─x─",
+            QuantumGate::Measure => "─[M]─"
         }
     }
 }

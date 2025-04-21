@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{cmp, fmt};
 use crate::core::gate::{QuantumGate, GateOp};
 use crate::core::qubit::Qubit;
 
@@ -12,6 +12,10 @@ pub struct QuantumCircuit {
     num_qubits: usize,
     /// The sequence of gate operations to apply
     operations: Vec<GateOp>,
+    /// Classical bits to store results
+    classical_bits: Vec<u8>,
+    /// Last step of the qubit (for step calculation)
+    last_step: Vec<usize>,
 }
 
 impl QuantumCircuit {
@@ -30,6 +34,8 @@ impl QuantumCircuit {
         QuantumCircuit {
             num_qubits,
             operations: Vec::new(),
+            classical_bits: Vec::with_capacity(num_qubits),
+            last_step: vec![0; num_qubits],
         }
     }
 
@@ -86,12 +92,11 @@ impl QuantumCircuit {
         if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
         }
-        let step = self.operations.iter()
-            .filter(|op| op.target == control)
-            .map(|op| op.step)
-            .max()
-            .map(|s| s + 1)
-            .unwrap_or(0);
+        let max_step = cmp::max(self.last_step[control], self.last_step[target]) + 1;
+        self.last_step[control] = max_step;
+        self.last_step[target] = max_step;
+
+        let step = self.last_step[target];
         self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target, step));
     }
 
@@ -107,6 +112,28 @@ impl QuantumCircuit {
         self.cnot(control, target);
     }
 
+    /// Applies a Measurement
+    /// TODO
+    pub fn measure(&mut self, qubit: usize, classical_bit: usize) {
+        if qubit >= self.num_qubits {
+            panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
+                   qubit, self.num_qubits);
+        }
+
+        // Ensure classical bits vector has enough space
+        while classical_bit >= self.classical_bits.len() {
+            self.classical_bits.push(0);
+        }
+
+        self.last_step[qubit]+=1;
+        let step = self.last_step[qubit];
+
+
+        let mut op = GateOp::new(QuantumGate::Measure, qubit, step);
+        op.classical_bit = Some(classical_bit);
+        self.operations.push(op);
+    }
+
     /// Adds a gate operation to the circuit
     /// 
     /// # Arguments
@@ -120,12 +147,8 @@ impl QuantumCircuit {
             panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
                    target, self.num_qubits);
         }
-        let step = self.operations.iter()
-            .filter(|op| op.target == target)
-            .map(|op| op.step)
-            .max()
-            .map(|s| s + 1)
-            .unwrap_or(0);
+        self.last_step[target] += 1;
+        let step = self.last_step[target];
         self.operations.push(GateOp::new(gate, target, step));
     }
 
@@ -178,10 +201,9 @@ impl QuantumCircuit {
             return;
         }
 
-        let max_step = self.operations.iter()
-            .map(|op| op.step)
+        let max_step = *self.last_step.iter()
             .max()
-            .unwrap_or(0);
+            .unwrap_or(&0);
         
         let height = 2 * self.num_qubits - 1;
         
@@ -203,7 +225,7 @@ impl QuantumCircuit {
             
             match op.gate {
                 QuantumGate::X | QuantumGate::Y | QuantumGate::Z | 
-                QuantumGate::H | QuantumGate::S | QuantumGate::T => {
+                QuantumGate::H | QuantumGate::S | QuantumGate::T | QuantumGate::Measure => {
                     grid[row][col] = op.gate.display_symbol();
                 },
                 QuantumGate::CNOT => {
@@ -240,7 +262,7 @@ impl QuantumCircuit {
             }
             
             // Print the row contents
-            for j in 0..=max_step {
+            for j in 1..=max_step {
                 if i % 2 == 1 && grid[i][j] != vert_line {
                     print!("   ");  
                 } else {
