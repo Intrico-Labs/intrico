@@ -157,6 +157,11 @@ impl Qubit {
         (self.state.components[0] == Complex::new(1.0, 0.0) && self.state.components[1] == Complex::new(0.0, 0.0)) || 
         (self.state.components[0] == Complex::new(0.0, 0.0) && self.state.components[1] == Complex::new(1.0, 0.0))
     }
+
+    /// Returns true if the qubit is in the |1⟩ state
+    pub fn is_one(&self) -> bool {
+        self.state.components[0] == Complex::new(0.0, 0.0) && self.state.components[1] == Complex::new(1.0, 0.0)
+    }
 }
 
 impl Default for Qubit {

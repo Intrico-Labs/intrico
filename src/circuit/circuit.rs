@@ -1,6 +1,7 @@
 use std::{cmp, fmt};
+use rusticle::complex::{Complex, ComplexVector};
+
 use crate::core::gate::{QuantumGate, GateOp};
-use crate::core::qubit::Qubit;
 
 /// Represents a quantum circuit that can be built and executed
 /// 
@@ -152,6 +153,25 @@ impl QuantumCircuit {
         self.operations.push(GateOp::new(gate, target, step));
     }
 
+    fn apply_single_qubit_gate(&self, state_vector: &mut Vec<Complex>, gate: QuantumGate, target: usize) {
+        let n = state_vector.len();
+        let mask = 1 << target;
+
+        for i in 0..n {
+            if i & mask == 0 {
+                let j = i | mask;  // Flip the target qubit
+                let a = state_vector[i];      // Amplitude of the state |i⟩
+                let b = state_vector[j];      // Amplitude of the state |j⟩
+
+                let ampl_vec = ComplexVector::new(vec![a, b]);
+                let ampl_vec = ampl_vec.mul_matrix(&gate.matrix());
+
+                state_vector[i] = ampl_vec.components[0];
+                state_vector[j] = ampl_vec.components[1];
+            }
+        }
+    }
+
     /// Executes the circuit on a set of qubits
     /// 
     /// # Arguments
@@ -167,18 +187,26 @@ impl QuantumCircuit {
     /// let mut qc = QuantumCircuit::new(1);
     /// qc.h(0);
     /// 
-    /// let mut qubits = vec![Qubit::zero()];
-    /// qc.execute(&mut qubits);
+    /// 
+    /// qc.execute();
     /// ```
-    pub fn execute(&self, qubits: &mut [Qubit]) {
-        if qubits.len() != self.num_qubits {
-            panic!("Number of qubits ({}) doesn't match circuit size ({})", 
-                   qubits.len(), self.num_qubits);
-        }
+    pub fn execute(&self) -> Vec<Complex> {
+        let dim = 1 << self.num_qubits;
+        let mut state_vector = vec![Complex::new(0.0, 0.0); dim];
+
+        // Selecting first state as active state
+        state_vector[0] = Complex::new(1.0, 0.0);
 
         for op in &self.operations {
-            qubits[op.target].apply(op.gate);
+            match op.gate {
+                QuantumGate::CNOT => {unimplemented!()},
+                _ => {
+                    self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target);
+                }
+            }
         }
+
+        state_vector
     }
 
     /// Returns the number of qubits in the circuit

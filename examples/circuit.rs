@@ -13,6 +13,10 @@ fn main() {
     // qc.cnot(2, 0);
     // qc.x(0);
     qc.cx(0, 1);
+    qc.x(0);
+    qc.cx(1, 0);
+    qc.measure(0, 0);
+    qc.measure(1, 1);
 
     println!("{}", qc);
 
