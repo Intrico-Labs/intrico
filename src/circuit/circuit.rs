@@ -198,11 +198,13 @@ impl QuantumCircuit {
         state_vector[0] = Complex::new(1.0, 0.0);
 
         for op in &self.operations {
-            match op.gate {
-                QuantumGate::CNOT => {unimplemented!()},
-                _ => {
+            match op.gate.arity() {
+                // single qubit gates
+                1 => {
                     self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target);
-                }
+                },
+                2 => {unimplemented!()},
+                _ => {}
             }
         }
 

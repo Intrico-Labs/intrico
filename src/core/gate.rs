@@ -116,7 +116,6 @@ impl GateOp {
             step, 
         }
     }
-
 }
 
 impl QuantumGate {
@@ -212,6 +211,14 @@ impl QuantumGate {
             QuantumGate::T => "─T─",
             QuantumGate::CNOT => "─x─",
             QuantumGate::Measure => "─[M]─"
+        }
+    }
+
+    /// Returns the number of qubits that the gate operates on.
+    pub fn arity(&self) -> usize {
+        match self {
+            QuantumGate::CNOT => 2,
+            _ => 1,
         }
     }
 }
