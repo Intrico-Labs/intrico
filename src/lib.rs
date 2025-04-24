@@ -42,6 +42,7 @@
 pub mod core;
 pub mod circuit;
 pub mod simulator;
+pub mod utility;
 
 // Expose types from modules
 pub use core::{Qubit, QuantumGate};

@@ -1,7 +1,7 @@
 use std::{cmp, fmt};
 use rusticle::complex::{Complex, ComplexVector};
 
-use crate::core::gate::{QuantumGate, GateOp};
+use crate::{core::gate::{GateOp, QuantumGate}, utility::round_if_close};
 
 /// Represents a quantum circuit that can be built and executed
 /// 
@@ -172,6 +172,66 @@ impl QuantumCircuit {
         }
     }
 
+    fn apply_two_qubit_gate(&self, state_vector: &mut Vec<Complex>, gate: QuantumGate, control: usize, target: usize) {
+        let n = self.num_qubits;
+        let dim = 1 << n;
+
+        let (low, high) = if control < target { (control, target) } else { (target, control) };
+
+        let mut visited = vec![false; dim];  
+
+        for i in 0..dim {
+            if visited[i] {
+                continue;
+            }
+
+            // Compute 4 indices for this 2-qubit subspace
+            let base = i & !(1 << low) & !(1 << high); 
+            let mut indices = [0usize; 4];
+            for k in 0..4 {
+                let b0 = k & 1;
+                let b1 = (k >> 1) & 1;
+                indices[k] = base | (b0 << low) | (b1 << high);
+            }
+
+            if indices.iter().any(|&idx| visited[idx]) {
+                continue;
+            }
+
+            // Extract amplitudes
+            let original: [Complex; 4] = indices.map(|idx| state_vector[idx]);
+
+            // Apply gate
+            let mut new_values = [Complex::new(0.0, 0.0); 4];
+            for r in 0..4 {
+                for c in 0..4 {
+                    new_values[r] += *gate.matrix().get(r, c) * original[c];
+                }
+            }
+
+            for (k, &val) in indices.iter().zip(&new_values) {
+                state_vector[*k] = val;
+                visited[*k] = true;
+            }
+        }
+    }
+
+    fn apply_cnot(&self, state_vector: &mut Vec<Complex>, control: usize, target: usize) {
+        let dim = state_vector.len();
+        let mut new_state = state_vector.clone();
+    
+        for i in 0..dim {
+            let control_bit = (i >> control) & 1;
+            if control_bit == 1 {
+                let flipped = i ^ (1 << target);  // Flip target bit
+                new_state[flipped] = state_vector[i];
+                new_state[i] = state_vector[flipped];
+            }
+        }
+    
+        *state_vector = new_state;
+    }
+
     /// Executes the circuit on a set of qubits
     /// 
     /// # Arguments
@@ -186,7 +246,6 @@ impl QuantumCircuit {
     /// 
     /// let mut qc = QuantumCircuit::new(1);
     /// qc.h(0);
-    /// 
     /// 
     /// qc.execute();
     /// ```
@@ -203,12 +262,24 @@ impl QuantumCircuit {
                 1 => {
                     self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target());
                 },
-                2 => {unimplemented!()},
+                2 => {
+                    if op.gate == QuantumGate::CNOT {
+                        self.apply_cnot(&mut state_vector, op.controls()[0], op.target());
+                    } else {
+                        self.apply_two_qubit_gate(&mut state_vector, op.gate, op.controls()[0], op.target());
+                    }
+                },
                 _ => {}
             }
         }
 
         state_vector
+            .into_iter()
+            .map(|c| Complex {
+                real: round_if_close(c.real, 1e-10),
+                imag: round_if_close(c.imag, 1e-10),
+            })
+            .collect()
     }
 
     /// Returns the number of qubits in the circuit
@@ -259,26 +330,25 @@ impl QuantumCircuit {
                     grid[row][col] = op.gate.display_symbol();
                 },
                 QuantumGate::CNOT => {
-                    if let Some(control) = op.control() {
-                        let ctrl_row = 2 * control;
-                        
-                        // Skip if control is out of bounds
-                        if ctrl_row >= height {
-                            continue;
-                        }
-                        
-                        grid[ctrl_row][col] = ctrl_dot;  
-                        grid[row][col] = op.gate.display_symbol();
-                        
-                        let (start, end) = if ctrl_row < row {
-                            (ctrl_row + 1, row)
-                        } else {
-                            (row + 1, ctrl_row)
-                        };
-                        
-                        for r in start..end {
-                            grid[r][col] = vert_line; 
-                        }
+                    let control = op.controls()[0];
+                    let ctrl_row = 2 * control;
+                    
+                    // Skip if control is out of bounds
+                    if ctrl_row >= height {
+                        continue;
+                    }
+                    
+                    grid[ctrl_row][col] = ctrl_dot;  
+                    grid[row][col] = op.gate.display_symbol();
+                    
+                    let (start, end) = if ctrl_row < row {
+                        (ctrl_row + 1, row)
+                    } else {
+                        (row + 1, ctrl_row)
+                    };
+                    
+                    for r in start..end {
+                        grid[r][col] = vert_line; 
                     }
                 },
             }
@@ -310,13 +380,10 @@ impl fmt::Display for QuantumCircuit {
                  self.num_qubits, self.num_operations())?;
         for (i, op) in self.operations.iter().enumerate() {
             if op.gate == QuantumGate::CNOT {
-                if let Some(control) = op.control() {
-                    writeln!(f, "  {}. {} on qubit {} by {} (Step: {})", 
-                            i + 1, op.gate, op.target(), control, op.step)?;
-                } else {
-                    writeln!(f, "  {}. {} on qubit {} (Step: {})", 
-                            i + 1, op.gate, op.target(), op.step)?;
-                }
+                
+                writeln!(f, "  {}. {} on qubit {} by {} (Step: {})", 
+                        i + 1, op.gate, op.target(), op.controls()[0], op.step)?;
+                
             } else {
                 writeln!(f, "  {}. {} on qubit {} (Step: {})", 
                          i + 1, op.gate, op.target(), op.step)?;

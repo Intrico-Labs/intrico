@@ -1,8 +1,11 @@
 use intrico::{simulator::Simulator, QuantumCircuit};
 
 fn main() {
-    let mut qc = QuantumCircuit::new(2);
+    let mut qc = QuantumCircuit::new(3);
     qc.h(0);
+    qc.h(1);
+    qc.h(2);
+    qc.cnot(0, 2);
 
     qc.display();
 

@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "intrico"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "rand",
  "rusticle",
@@ -104,9 +104,9 @@ dependencies = [
 
 [[package]]
 name = "rusticle"
-version = "0.4.12"
+version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bd296717412afc413afa307abac24c246eb9c59b2a6becc2094aee42a20f57a"
+checksum = "137b5bb2f728ecd3e9bac6c18f4f2f31cb36176680703a2017cd1640da3d1d39"
 
 [[package]]
 name = "syn"

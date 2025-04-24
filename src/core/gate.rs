@@ -122,13 +122,12 @@ impl GateOp {
         *self.qubit.last().unwrap_or(&0)
     }
     
-    /// Get the control qubit for controlled gates (first qubit in the list)
-    pub fn control(&self) -> Option<usize> {
-        if self.arity >= 2 && self.qubit.len() >= 2 {
-            self.qubit.first().copied()
-        } else {
-            None
+    /// Get the control qubits for controlled gates (all qubits except the last)
+    pub fn controls(&self) -> Vec<usize> {
+        if self.arity < 2 {
+            panic!("Cannot get control qubits for single-qubit gate");
         }
+        self.qubit[..self.qubit.len()-1].to_vec()
     }
 }
 
