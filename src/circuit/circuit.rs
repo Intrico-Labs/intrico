@@ -201,7 +201,7 @@ impl QuantumCircuit {
             match op.gate.arity() {
                 // single qubit gates
                 1 => {
-                    self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target);
+                    self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target());
                 },
                 2 => {unimplemented!()},
                 _ => {}
@@ -245,7 +245,7 @@ impl QuantumCircuit {
         let mut grid = vec![vec![wire; max_step + 1]; height];
         
         for op in &self.operations {
-            let row = 2 * op.target;
+            let row = 2 * op.target();
             let col = op.step;
             
             // Skip if the operation is out of bounds (safety check)
@@ -259,7 +259,7 @@ impl QuantumCircuit {
                     grid[row][col] = op.gate.display_symbol();
                 },
                 QuantumGate::CNOT => {
-                    if let Some(control) = op.control {
+                    if let Some(control) = op.control() {
                         let ctrl_row = 2 * control;
                         
                         // Skip if control is out of bounds
@@ -310,11 +310,17 @@ impl fmt::Display for QuantumCircuit {
                  self.num_qubits, self.num_operations())?;
         for (i, op) in self.operations.iter().enumerate() {
             if op.gate == QuantumGate::CNOT {
-                writeln!(f, "  {}. {} on qubit {} by {} (Step: {})", i + 1, op.gate, op.target, op.control.unwrap(), op.step)?;
+                if let Some(control) = op.control() {
+                    writeln!(f, "  {}. {} on qubit {} by {} (Step: {})", 
+                            i + 1, op.gate, op.target(), control, op.step)?;
+                } else {
+                    writeln!(f, "  {}. {} on qubit {} (Step: {})", 
+                            i + 1, op.gate, op.target(), op.step)?;
+                }
             } else {
-                writeln!(f, "  {}. {} on qubit {} (Step: {})", i + 1, op.gate, op.target, op.step)?;
+                writeln!(f, "  {}. {} on qubit {} (Step: {})", 
+                         i + 1, op.gate, op.target(), op.step)?;
             }
-            
         }
         Ok(())
     }

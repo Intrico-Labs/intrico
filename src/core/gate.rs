@@ -80,18 +80,18 @@ pub enum QuantumGate {
 /// 
 /// This struct efficiently stores gate operations by using a compact representation
 /// that includes the gate type and the target qubit index.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GateOp {
     /// The quantum gate to apply
     pub gate: QuantumGate,
-    /// The target qubit index
-    pub target: usize,
-    /// The control qubit index (for controlled gates like CNOT)
-    pub control: Option<usize>,
-    /// The classical bit index (for storing results)
-    pub classical_bit: Option<usize>,
+    /// The indices of qubits the gate applies on
+    pub qubit: Vec<usize>,
+    /// The arity of the quantum gate being applied
+    pub arity: usize,
     /// The step in the circuit where this operation occurs
     pub step: usize,
+    /// The classical bit index (for storing measurement results)
+    pub classical_bit: Option<usize>,
 }
 
 impl GateOp {
@@ -99,10 +99,10 @@ impl GateOp {
     pub fn new(gate: QuantumGate, target: usize, step: usize) -> Self {
         GateOp {
             gate,
-            target,
-            control: None,
+            qubit: vec![target],
+            arity: gate.arity(),
+            step,
             classical_bit: None,
-            step, 
         }
     }
 
@@ -110,10 +110,24 @@ impl GateOp {
     pub fn controlled(gate: QuantumGate, control: usize, target: usize, step: usize) -> Self {
         GateOp {
             gate,
-            target,
-            control: Some(control),
+            qubit: vec![control, target],
+            arity: gate.arity(),
+            step,
             classical_bit: None,
-            step, 
+        }
+    }
+    
+    /// Get the target qubit (last qubit in the list)
+    pub fn target(&self) -> usize {
+        *self.qubit.last().unwrap_or(&0)
+    }
+    
+    /// Get the control qubit for controlled gates (first qubit in the list)
+    pub fn control(&self) -> Option<usize> {
+        if self.arity >= 2 && self.qubit.len() >= 2 {
+            self.qubit.first().copied()
+        } else {
+            None
         }
     }
 }
