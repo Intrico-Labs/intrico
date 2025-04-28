@@ -11,7 +11,7 @@
 //! 
 //! ```toml
 //! [dependencies]
-//! intrico = "0.4.0"
+//! intrico = "0.4.7"
 //! ```
 //! 
 //! or use `cargo add intrico` to add it to your project.
@@ -20,8 +20,9 @@
 //! 
 //! | Feature | Description |
 //! |---------|-------------|
-//! | `core` | Core quantum simulation functionality including qubits and quantum gates |
-//! | `circuit` | Quantum circuit functionality including visualisations |
+//! | `core` | Core Quantum definitions like qubits, quantum gates, gate operations, etc |
+//! | `circuit` | Quantum Circuit functionality including visualisations |
+//! | `simulator` | Quantum Simulation functionality |
 //! 
 //! ## Example
 //! 
@@ -38,6 +39,14 @@
 //!     println!("psi = {:?}", ket_0);
 //! }
 //! ```
+//! 
+//! ## Examples
+//! Checkout the [examples](./examples/) directory for all the examples. For convenience here's a list of some significant ones:
+
+//! | Example | Description |
+//! |---------|-------------|
+//! | [`statevector-simulator`](./examples/statevector_simulator.rs) | A bell state simulation using statevector simulator |
+
 
 pub mod core;
 pub mod circuit;

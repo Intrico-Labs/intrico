@@ -1,17 +1,15 @@
 use intrico::{simulator::Simulator, QuantumCircuit};
 
 fn main() {
-    let mut qc = QuantumCircuit::new(3);
+    let mut qc = QuantumCircuit::new(2);
     qc.h(0);
-    qc.h(1);
-    qc.h(2);
-    qc.cnot(0, 2);
+    qc.cnot(0, 1);
 
     qc.display();
 
     let states = qc.execute();
 
-    println!("{:?}", states);
+    println!("Final states: {:?}", states);
 
     let sim = Simulator::new()
         .with_circuit(qc);

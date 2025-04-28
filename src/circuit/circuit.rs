@@ -57,26 +57,81 @@ impl QuantumCircuit {
     }
 
     /// Applies a Pauli-X gate to the specified qubit
+    ///
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.x(0);  // Apply X gate to the first qubit
+    /// ```
     pub fn x(&mut self, target: usize) {
         self.add_gate(QuantumGate::X, target);
     }
 
     /// Applies a Pauli-Y gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.y(0);  // Apply Y gate to the first qubit
+    /// ```
     pub fn y(&mut self, target: usize) {
         self.add_gate(QuantumGate::Y, target);
     }
 
     /// Applies a Pauli-Z gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.z(0);  // Apply Z gate to the first qubit
+    /// ```
     pub fn z(&mut self, target: usize) {
         self.add_gate(QuantumGate::Z, target);
     }
 
     /// Applies an S gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.s(0);  // Apply S gate to the first qubit
+    /// ```
     pub fn s(&mut self, target: usize) {
         self.add_gate(QuantumGate::S, target);
     }
 
     /// Applies a T gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.t(0);  // Apply T gate to the first qubit
+    /// ```
     pub fn t(&mut self, target: usize) {
         self.add_gate(QuantumGate::T, target);
     }
@@ -87,8 +142,13 @@ impl QuantumCircuit {
     /// * `control` - The index of the control qubit
     /// * `target` - The index of the target qubit
     /// 
-    /// # Panics
-    /// Panics if either qubit index is out of bounds
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(2);
+    /// qc.cnot(0, 1);  // Apply CNOT gate with control qubit 0 and target qubit 1
+    /// ```
     pub fn cnot(&mut self, control: usize, target: usize) {
         if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
@@ -107,14 +167,31 @@ impl QuantumCircuit {
     /// * `control` - The index of the control qubit
     /// * `target` - The index of the target qubit
     /// 
-    /// # Panics
-    /// Panics if either qubit index is out of bounds
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(2);
+    /// qc.cx(0, 1);  // Apply CNOT gate with control qubit 0 and target qubit 1
+    /// ```
+
     pub fn cx(&mut self, control: usize, target: usize) {
         self.cnot(control, target);
     }
 
     /// Applies a Measurement
-    /// TODO
+    /// 
+    /// # Arguments
+    /// * `qubit` - The index of the qubit to measure
+    /// * `classical_bit` - The index of the classical bit to store the result
+    /// 
+    /// # Examples
+    /// ``` 
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.measure(0, 0);  // Measure the first qubit and store the result in the first classical bit
+    /// ``` 
     pub fn measure(&mut self, qubit: usize, classical_bit: usize) {
         if qubit >= self.num_qubits {
             panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
@@ -141,9 +218,15 @@ impl QuantumCircuit {
     /// * `gate` - The quantum gate to apply
     /// * `target` - The index of the qubit to apply the gate to
     /// 
-    /// # Panics
-    /// Panics if the target qubit index is out of bounds
-    fn add_gate(&mut self, gate: QuantumGate, target: usize) {
+    /// # Examples
+    /// ```
+    /// use intrico::{QuantumCircuit, QuantumGate};
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.add_gate(QuantumGate::H, 0);  // Add a Hadamard gate to the first qubit
+    /// ```
+
+    pub fn add_gate(&mut self, gate: QuantumGate, target: usize) {
         if target >= self.num_qubits {
             panic!("Qubit index {} is out of bounds for circuit with {} qubits", 
                    target, self.num_qubits);
@@ -237,12 +320,9 @@ impl QuantumCircuit {
     /// # Arguments
     /// * `qubits` - A slice of qubits to apply the circuit to
     /// 
-    /// # Panics
-    /// Panics if the number of qubits doesn't match the circuit size
-    /// 
     /// # Examples
     /// ```
-    /// use intrico::{QuantumCircuit, Qubit};
+    /// use intrico::QuantumCircuit;
     /// 
     /// let mut qc = QuantumCircuit::new(1);
     /// qc.h(0);
