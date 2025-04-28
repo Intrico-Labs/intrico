@@ -1,1 +1,6 @@
 /target
+
+# Editor backup files
+*.swp
+*~
+Cargo.toml-e
