@@ -56,7 +56,7 @@ impl Simulator {
     /// 
     /// # Examples
     /// ```
-    /// use intrico::Simulator;
+    /// use intrico::simulator::Simulator;
     /// 
     /// let sim = Simulator::new();
     /// ```
@@ -68,7 +68,7 @@ impl Simulator {
     /// 
     /// # Examples
     /// ```
-    /// use intrico::Simulator;
+    /// use intrico::simulator::{Simulator, Backend};
     /// 
     /// let sim = Simulator::with_backend(Backend::StateVector);
     /// ```
@@ -100,7 +100,8 @@ impl Simulator {
     /// 
     /// # Examples
     /// ```
-    /// use intrico::Simulator;
+    /// use intrico::QuantumCircuit;
+    /// use intrico::simulator::Simulator;
     /// 
     /// let sim = Simulator::new()
     ///     .with_circuit(QuantumCircuit::new(2));
@@ -114,7 +115,8 @@ impl Simulator {
     /// 
     /// # Examples
     /// ```
-    /// use intrico::Simulator;
+    /// use intrico::QuantumCircuit;
+    /// use intrico::simulator::Simulator;
     /// 
     /// let mut qc = QuantumCircuit::new(2);
     /// qc.h(0);
