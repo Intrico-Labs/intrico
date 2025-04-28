@@ -1,12 +1,11 @@
 use rusticle::complex::Complex;
 use rusticle::linalg::Matrix;
-use rusticle::Angle;
 
 /// Represents a basic quantum gate that can be applied to a qubit.
 /// 
 /// Each variant represents a different quantum gate with its corresponding
 /// unitary matrix representation.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum QuantumGate {
     /// The Pauli-X gate (quantum NOT gate)
     /// 
@@ -101,7 +100,10 @@ pub enum QuantumGate {
     CNOT,
 
     /// Measurement
-    Measure
+    Measure,
+
+    /// Custom Gate (Matrix, Name, Symbol)
+    Custom(Matrix<Complex>, String, String),
 }
 
 /// Represents a quantum gate operation in a circuit
@@ -114,8 +116,6 @@ pub struct GateOp {
     pub gate: QuantumGate,
     /// The indices of qubits the gate applies on
     pub qubit: Vec<usize>,
-    /// The arity of the quantum gate being applied
-    pub arity: usize,
     /// The step in the circuit where this operation occurs
     pub step: usize,
     /// The classical bit index (for storing measurement results)
@@ -128,7 +128,6 @@ impl GateOp {
         GateOp {
             gate,
             qubit: vec![target],
-            arity: gate.arity(),
             step,
             classical_bit: None,
         }
@@ -139,7 +138,6 @@ impl GateOp {
         GateOp {
             gate,
             qubit: vec![control, target],
-            arity: gate.arity(),
             step,
             classical_bit: None,
         }
@@ -152,7 +150,7 @@ impl GateOp {
     
     /// Get the control qubits for controlled gates (all qubits except the last)
     pub fn controls(&self) -> Vec<usize> {
-        if self.arity < 2 {
+        if self.gate.arity() < 2 {
             panic!("Cannot get control qubits for single-qubit gate");
         }
         self.qubit[..self.qubit.len()-1].to_vec()
@@ -229,6 +227,7 @@ impl QuantumGate {
                     Complex::new(0.0, 0.0), plus_i,
                 ])
             },
+            QuantumGate::Custom(matrix, _, _) => matrix.clone(),
         }
     }
 
@@ -246,6 +245,7 @@ impl QuantumGate {
             QuantumGate::Rx(angle) => format!("Rx({})", angle),
             QuantumGate::Ry(angle) => format!("Ry({})", angle),
             QuantumGate::Rz(angle) => format!("Rz({})", angle),
+            QuantumGate::Custom(_, name, _) => format!("{}", name),
         }
     }
 
@@ -263,6 +263,7 @@ impl QuantumGate {
             QuantumGate::Rx(angle) => format!("Rx({})", angle),
             QuantumGate::Ry(angle) => format!("Ry({})", angle),
             QuantumGate::Rz(angle) => format!("Rz({})", angle),
+            QuantumGate::Custom(_, _, symbol) => format!("{}", symbol),
         }
     }
     
@@ -280,6 +281,7 @@ impl QuantumGate {
             QuantumGate::Rx(angle) => format!("─Rx({:.2})─", angle),
             QuantumGate::Ry(angle) => format!("─Ry({:.2})─", angle),
             QuantumGate::Rz(angle) => format!("─Rz({:.2})─", angle),
+            QuantumGate::Custom(_, _, symbol) => format!("─{}─", symbol),
         }
     }
 

@@ -391,13 +391,13 @@ impl QuantumCircuit {
             match op.gate.arity() {
                 // single qubit gates
                 1 => {
-                    self.apply_single_qubit_gate(&mut state_vector, op.gate, op.target());
+                    self.apply_single_qubit_gate(&mut state_vector, op.gate.clone(), op.target());
                 },
                 2 => {
                     if op.gate == QuantumGate::CNOT {
                         self.apply_cnot(&mut state_vector, op.controls()[0], op.target());
                     } else {
-                        self.apply_two_qubit_gate(&mut state_vector, op.gate, op.controls()[0], op.target());
+                        self.apply_two_qubit_gate(&mut state_vector, op.gate.clone(), op.controls()[0], op.target());
                     }
                 },
                 _ => {}
