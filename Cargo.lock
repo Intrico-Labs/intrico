@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "intrico"
-version = "0.5.4"
+version = "0.5.5"
 dependencies = [
  "rand",
  "rusticle",
