@@ -179,6 +179,57 @@ impl QuantumCircuit {
         self.cnot(control, target);
     }
 
+    /// Applies a Rx gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// * `angle` - The angle of the Rx gate
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.rx(0, std::f64::consts::PI / 2.0);  // Apply Rx gate to the first qubit with angle π/2
+    /// ```
+    pub fn rx(&mut self, target: usize, angle: f64) {
+        self.add_gate(QuantumGate::Rx(angle), target);
+    }
+
+    /// Applies a Ry gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// * `angle` - The angle of the Ry gate
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.ry(0, std::f64::consts::PI / 2.0);  // Apply Ry gate to the first qubit with angle π/2
+    /// ```
+    pub fn ry(&mut self, target: usize, angle: f64) {
+        self.add_gate(QuantumGate::Ry(angle), target);
+    }
+
+    /// Applies a Rz gate to the specified qubit
+    /// 
+    /// # Arguments
+    /// * `target` - The index of the qubit to apply the gate to
+    /// * `angle` - The angle of the Rz gate
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(1);
+    /// qc.rz(0, std::f64::consts::PI / 2.0);  // Apply Rz gate to the first qubit with angle π/2
+    /// ```
+    pub fn rz(&mut self, target: usize, angle: f64) {
+        self.add_gate(QuantumGate::Rz(angle), target);
+    }
+
     /// Applies a Measurement
     /// 
     /// # Arguments
@@ -389,9 +440,9 @@ impl QuantumCircuit {
         let height = 2 * self.num_qubits - 1;
         
         // Misc symbols
-        let wire = "───";
-        let vert_line = " │ ";
-        let ctrl_dot = "─●─";
+        let wire = "───".to_string();
+        let vert_line = " │ ".to_string();
+        let ctrl_dot = "─●─".to_string();
         
         let mut grid = vec![vec![wire; max_step + 1]; height];
         
@@ -404,12 +455,11 @@ impl QuantumCircuit {
                 continue;
             }
             
-            match op.gate {
-                QuantumGate::X | QuantumGate::Y | QuantumGate::Z | 
-                QuantumGate::H | QuantumGate::S | QuantumGate::T | QuantumGate::Measure => {
+            match op.gate.arity() {
+                1 => {
                     grid[row][col] = op.gate.display_symbol();
                 },
-                QuantumGate::CNOT => {
+                2 => {
                     let control = op.controls()[0];
                     let ctrl_row = 2 * control;
                     
@@ -418,7 +468,7 @@ impl QuantumCircuit {
                         continue;
                     }
                     
-                    grid[ctrl_row][col] = ctrl_dot;  
+                    grid[ctrl_row][col] = ctrl_dot.clone();  
                     grid[row][col] = op.gate.display_symbol();
                     
                     let (start, end) = if ctrl_row < row {
@@ -428,9 +478,10 @@ impl QuantumCircuit {
                     };
                     
                     for r in start..end {
-                        grid[r][col] = vert_line; 
+                        grid[r][col] = vert_line.clone(); 
                     }
                 },
+                _ => {}
             }
         }
         
