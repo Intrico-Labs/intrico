@@ -150,15 +150,7 @@ impl QuantumCircuit {
     /// qc.cnot(0, 1);  // Apply CNOT gate with control qubit 0 and target qubit 1
     /// ```
     pub fn cnot(&mut self, control: usize, target: usize) {
-        if control >= self.num_qubits || target >= self.num_qubits {
-            panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
-        }
-        let max_step = cmp::max(self.last_step[control], self.last_step[target]) + 1;
-        self.last_step[control] = max_step;
-        self.last_step[target] = max_step;
-
-        let step = self.last_step[target];
-        self.operations.push(GateOp::controlled(QuantumGate::CNOT, control, target, step));
+        self.add_controlled_gate(QuantumGate::CNOT, control, target);
     }
 
     /// Applies a CNOT gate with the specified control and target qubits
@@ -177,6 +169,25 @@ impl QuantumCircuit {
 
     pub fn cx(&mut self, control: usize, target: usize) {
         self.cnot(control, target);
+    }
+
+    
+
+    /// Applies a CZ gate with the specified control and target qubits
+    /// 
+    /// # Arguments
+    /// * `control` - The index of the control qubit
+    /// * `target` - The index of the target qubit
+    /// 
+    /// # Examples
+    /// ```
+    /// use intrico::QuantumCircuit;
+    /// 
+    /// let mut qc = QuantumCircuit::new(2);
+    /// qc.cz(0, 1);  // Apply CZ gate with control qubit 0 and target qubit 1
+    /// ```
+    pub fn cz(&mut self, control: usize, target: usize) {
+        self.add_controlled_gate(QuantumGate::CZ, control, target);
     }
 
     /// Applies a Rx gate to the specified qubit
@@ -285,6 +296,19 @@ impl QuantumCircuit {
         self.last_step[target] += 1;
         let step = self.last_step[target];
         self.operations.push(GateOp::new(gate, target, step));
+    }
+
+    /// Adds a controlled gate operation to the circuit
+    pub fn add_controlled_gate(&mut self, gate: QuantumGate, control: usize, target: usize) {
+        if control >= self.num_qubits || target >= self.num_qubits {
+            panic!("Qubit index out of bounds for circuit with {} qubits", self.num_qubits);
+        }
+        let max_step = cmp::max(self.last_step[control], self.last_step[target]) + 1;
+        self.last_step[control] = max_step;
+        self.last_step[target] = max_step;
+
+        let step = self.last_step[target];
+        self.operations.push(GateOp::controlled(gate, control, target, step));
     }
 
     fn apply_single_qubit_gate(&self, state_vector: &mut Vec<Complex>, gate: QuantumGate, target: usize) {

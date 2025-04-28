@@ -99,7 +99,18 @@ pub enum QuantumGate {
     /// ```
     CNOT,
 
-    /// Measurement
+    /// The Controlled-Z gate
+    /// 
+    /// Matrix representation:  
+    /// ```text
+    /// [1 0 0 0]
+    /// [0 1 0 0]
+    /// [0 0 1 0]
+    /// [0 0 0 -1]
+    /// ```
+    CZ,
+
+    /// Measurement gate
     Measure,
 
     /// Custom Gate (Matrix, Name, Symbol)
@@ -197,6 +208,12 @@ impl QuantumGate {
                         Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
                         Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
                     ]),
+            QuantumGate::CZ => Matrix::new(4, 4, vec![
+                        Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+                        Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+                        Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+                        Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(-1.0, 0.0),
+                    ]),
             QuantumGate::Measure => {
                         // Return zero for measurement matrix
                         Matrix::zeros(1, 1)
@@ -241,6 +258,7 @@ impl QuantumGate {
             QuantumGate::S => "S".to_string(),
             QuantumGate::T => "T".to_string(),
             QuantumGate::CNOT => "CNOT".to_string(),
+            QuantumGate::CZ => "CZ".to_string(),
             QuantumGate::Measure => "Measurement".to_string(),
             QuantumGate::Rx(angle) => format!("Rx({})", angle),
             QuantumGate::Ry(angle) => format!("Ry({})", angle),
@@ -259,6 +277,7 @@ impl QuantumGate {
             QuantumGate::S => "S".to_string(),
             QuantumGate::T => "T".to_string(),
             QuantumGate::CNOT => "CX".to_string(),
+            QuantumGate::CZ => "CZ".to_string(),
             QuantumGate::Measure => "M".to_string(),
             QuantumGate::Rx(angle) => format!("Rx({})", angle),
             QuantumGate::Ry(angle) => format!("Ry({})", angle),
@@ -276,7 +295,8 @@ impl QuantumGate {
             QuantumGate::H => "─H─".to_string(),
             QuantumGate::S => "─S─".to_string(),
             QuantumGate::T => "─T─".to_string(),
-            QuantumGate::CNOT => "─x─".to_string(),
+            QuantumGate::CNOT => "─X─".to_string(),
+            QuantumGate::CZ => "─Z─".to_string(),
             QuantumGate::Measure => "─[M]─".to_string(),
             QuantumGate::Rx(angle) => format!("─Rx({:.2})─", angle),
             QuantumGate::Ry(angle) => format!("─Ry({:.2})─", angle),
@@ -288,7 +308,7 @@ impl QuantumGate {
     /// Returns the number of qubits that the gate operates on.
     pub fn arity(&self) -> usize {
         match self {
-            QuantumGate::CNOT => 2,
+            QuantumGate::CNOT | QuantumGate::CZ => 2,
             _ => 1,
         }
     }
