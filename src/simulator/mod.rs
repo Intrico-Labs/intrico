@@ -1,7 +1,6 @@
-//!
+//! Quantum Simulation module
 //! 
-//! 
-//! 
+//! This module provides functionality for simulating quantum circuits using different backends.
 
 mod simulator;
 

@@ -11,7 +11,7 @@
 //! 
 //! ```toml
 //! [dependencies]
-//! intrico = "0.4.7"
+//! intrico = "1.0.0"
 //! ```
 //! 
 //! or use `cargo add intrico` to add it to your project.
@@ -24,7 +24,7 @@
 //! | `circuit` | Quantum Circuit functionality including visualisations |
 //! | `simulator` | Quantum Simulation functionality |
 //! 
-//! ## Example
+//! ## Quick Start
 //! 
 //! ```rust
 //! use intrico::{Qubit, QuantumGate};
@@ -39,13 +39,15 @@
 //!     println!("psi = {:?}", ket_0);
 //! }
 //! ```
-//! 
+
 //! ## Examples
 //! Checkout the [examples](./examples/) directory for all the examples. For convenience here's a list of some significant ones:
 
 //! | Example | Description |
 //! |---------|-------------|
+//! | [`quantum-circuit`](./examples/quantum_circuit.rs) | A bell state quantum circuit visualisation |
 //! | [`statevector-simulator`](./examples/statevector_simulator.rs) | A bell state simulation using statevector simulator |
+//! | [`grovers-algorithm`](./examples/grovers_algorithm.rs) | A two-qubit grover's algorithm simulation |
 
 
 pub mod core;

@@ -12,7 +12,7 @@ OR add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-intrico = "0.4.7"
+intrico = "1.0.0"
 ```
 
 ## Quick Start
@@ -46,7 +46,9 @@ Checkout the [examples](./examples/) directory for all the examples. For conveni
 
 | Example | Description |
 |---------|-------------|
+| [`quantum-circuit`](./examples/quantum_circuit.rs) | A bell state quantum circuit visualisation |
 | [`statevector-simulator`](./examples/statevector_simulator.rs) | A bell state simulation using statevector simulator |
+| [`grovers-algorithm`](./examples/grovers_algorithm.rs) | A two-qubit grover's algorithm simulation |
 
 
 ## License
