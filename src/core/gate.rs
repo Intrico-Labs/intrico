@@ -43,15 +43,17 @@ pub enum Param1QGate {
 
 pub struct QuantumGate {
     gate: Gate,
-    arity: usize
+    arity: usize,
+    name: Option<String>
 }
 
 impl QuantumGate {
     // new gate
-    pub fn new(gate: Gate, arity: usize) -> Self {
+    pub fn new(gate: Gate, arity: usize, name: Option<String>) -> Self {
         Self {
             gate,
-            arity
+            arity,
+            name
         }
     }
 
@@ -75,7 +77,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("X".to_string())
         }
     }
 
@@ -90,7 +93,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("Y".to_string())
         }
     }
 
@@ -105,7 +109,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("Z".to_string())
         }
     }
 
@@ -121,7 +126,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("H".to_string())
         }
     }
 
@@ -136,7 +142,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("S".to_string())
         }
     }
 
@@ -152,7 +159,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("T".to_string())
         }
     }
 
@@ -165,7 +173,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("RX".to_string())
         }
     }
 
@@ -177,7 +186,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("RY".to_string())
         }
     }
 
@@ -189,7 +199,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 1
+            arity: 1,
+            name: Some("RZ".to_string())
         }
     }
 
@@ -204,7 +215,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 2
+            arity: 2,
+            name: Some("CX".to_string())
         }
     }
 
@@ -218,7 +230,8 @@ impl QuantumGate {
 
         Self {
             gate,
-            arity: 2
+            arity: 2,
+            name: Some("CZ".to_string())
         }
     }
 }
