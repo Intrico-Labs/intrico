@@ -66,6 +66,10 @@ impl QuantumGate {
         self.arity
     }
 
+    pub fn name(&self) -> &Option<String> {
+        &self.name
+    }
+
     // pauli-x gate
     pub fn x() -> Self {
         let gate = Gate::OneQubit { matrix: [
