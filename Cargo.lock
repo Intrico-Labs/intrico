@@ -5,3 +5,12 @@ version = 4
 [[package]]
 name = "intrico"
 version = "2.0.0"
+dependencies = [
+ "rusticle",
+]
+
+[[package]]
+name = "rusticle"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c649213394f98c9ca42cc1bb6ab5417d9b8f4ebd6f71daf3b845e07ba449d05"
