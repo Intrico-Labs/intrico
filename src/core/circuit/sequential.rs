@@ -1,11 +1,14 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+use smallvec::SmallVec;
+
 use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}, ir::circuit_ir::{CircuitIR, SequentialIR}};
 
 pub struct SequentialCircuit {
     n_qubits: usize,
     operations: Vec<GateOp>,
-    cached_depth: Option<usize>
+    cached_depth: Option<usize>,
+    qubit_layers: Vec<usize>
 }
 
 impl QuantumCircuit for SequentialCircuit {
@@ -13,8 +16,23 @@ impl QuantumCircuit for SequentialCircuit {
         self.n_qubits
     }
 
-    fn add_op(&mut self, op: super::GateOp) {
-        // TODO: calculate layer of gate before pushing gateop
+    fn add_op(&mut self, mut op: super::GateOp) {
+        let qubits: SmallVec<[usize; 4]> = op.targets().iter()
+            .chain(op.controls().iter())
+            .copied()
+            .collect();
+
+        let max_layer = qubits.iter()
+            .map(|&qubit| self.qubit_layers[qubit])
+            .max()
+            .unwrap_or(0);
+
+        op.set_layer(max_layer);
+
+        for &qubit in &qubits {
+            self.qubit_layers[qubit] = max_layer+1;
+        }
+
         self.operations.push(op);
     }
 
@@ -34,7 +52,8 @@ impl SequentialCircuit {
         Self {
             n_qubits,
             operations: Vec::new(),
-            cached_depth: None
+            cached_depth: None,
+            qubit_layers: vec![0; n_qubits]
         }
     }
 
@@ -191,10 +210,11 @@ impl Display for SequentialCircuit {
 
             writeln!(
                 f, 
-                "   Gate {}: {} -> {}",
+                "   Gate {}: {} -> {} (Layer {})",
                 idx+1,
                 name,
                 qubits,
+                op.get_layer()
             )?;
         }
 

@@ -12,7 +12,7 @@ pub struct GateOp {
 
 #[derive(Debug, Default, Clone)]
 pub struct GateMetadata {
-    layer: Option<usize>,
+    layer: usize,
 }
 
 impl GateOp {
@@ -40,6 +40,14 @@ impl GateOp {
 
     pub fn metadata(&self) -> &GateMetadata {
         &self.metadata
+    }
+
+    pub fn set_layer(&mut self, layer: usize) {
+        self.metadata.layer = layer;
+    }
+
+    pub fn get_layer(&self) -> usize {
+        self.metadata.layer
     }
 }
 
