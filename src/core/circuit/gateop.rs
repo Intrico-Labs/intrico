@@ -2,6 +2,7 @@ use smallvec::SmallVec;
 
 use crate::core::{QuantumGate};
 
+#[derive(Clone)]
 pub struct GateOp {
     gate: QuantumGate,
     targets: SmallVec<[usize; 2]>,
@@ -9,7 +10,7 @@ pub struct GateOp {
     metadata: GateMetadata,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct GateMetadata {
     layer: Option<usize>,
 }

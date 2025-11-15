@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}};
+use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}, ir::circuit_ir::{CircuitIR, SequentialIR}};
 
 pub struct SequentialCircuit {
     n_qubits: usize,
@@ -14,6 +14,7 @@ impl QuantumCircuit for SequentialCircuit {
     }
 
     fn add_op(&mut self, op: super::GateOp) {
+        // TODO: calculate layer of gate before pushing gateop
         self.operations.push(op);
     }
 
@@ -45,6 +46,16 @@ impl SequentialCircuit {
         self.operations.len()
     }
 
+    pub fn to_ir(&self) -> CircuitIR {
+        // TODO: validate ops before building IR
+
+        let ir = SequentialIR::new(self.n_qubits, self.operations.clone());
+        CircuitIR::Sequential(ir)
+    }
+}
+
+// Builder APIs
+impl SequentialCircuit {
     // Standard single-qubit gates
     pub fn x(&mut self, target: usize) -> &mut Self {
         if target > self.n_qubits-1 {
