@@ -50,7 +50,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::x(), vec![target]);
+        let op = GateOp::new(QuantumGate::x(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -59,7 +59,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::y(), vec![target]);
+        let op = GateOp::new(QuantumGate::y(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -68,7 +68,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::z(), vec![target]);
+        let op = GateOp::new(QuantumGate::z(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -77,7 +77,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::h(), vec![target]);
+        let op = GateOp::new(QuantumGate::h(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -86,7 +86,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::s(), vec![target]);
+        let op = GateOp::new(QuantumGate::s(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -95,7 +95,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::t(), vec![target]);
+        let op = GateOp::new(QuantumGate::t(), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -105,7 +105,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::rx(theta), vec![target]);
+        let op = GateOp::new(QuantumGate::rx(theta), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -114,7 +114,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::ry(theta), vec![target]);
+        let op = GateOp::new(QuantumGate::ry(theta), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -123,7 +123,7 @@ impl SequentialCircuit {
         if target > self.n_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.n_qubits);
         }
-        let op = GateOp::new(QuantumGate::rz(theta), vec![target]);
+        let op = GateOp::new(QuantumGate::rz(theta), &[target], &[]);
         self.add_op(op);
         self
     }
@@ -136,7 +136,7 @@ impl SequentialCircuit {
         if control == target {
             panic!("Control and target qubits must be different");
         }
-        let op = GateOp::new(QuantumGate::cx(), vec![control, target]);
+        let op = GateOp::new(QuantumGate::cx(), &[target], &[control]);
         self.add_op(op);
         self
     }
@@ -148,7 +148,7 @@ impl SequentialCircuit {
         if control == target {
             panic!("Control and target qubits must be different");
         }
-        let op = GateOp::new(QuantumGate::cz(), vec![control, target]);
+        let op = GateOp::new(QuantumGate::cz(), &[target], &[control]);
         self.add_op(op);
         self
     }
