@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use smallvec::SmallVec;
 
-use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}, ir::circuit_ir::{CircuitIR, SequentialIR}};
+use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}, ir::{CircuitIR, SequentialIR}};
 
 pub struct SequentialCircuit {
     n_qubits: usize,

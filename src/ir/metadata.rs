@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 
+#[derive(Debug)]
 pub struct IRMetadata {
     pub version: String,
     pub name: String,
