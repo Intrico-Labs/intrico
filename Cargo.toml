@@ -4,5 +4,6 @@ version = "2.0.0"
 edition = "2024"
 
 [dependencies]
+chrono = { version = "0.4.42", features = ["serde"] }
 rusticle = "1.0.4"
 smallvec = "1.15.1"
