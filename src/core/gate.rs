@@ -73,6 +73,13 @@ impl QuantumGate {
         &self.name
     }
 
+    pub fn params(&self) -> Option<&[f64; 3]> {
+        match &self.gate {
+            Gate::Param1Q { params, .. } => Some(params),
+            _ => None
+        }
+    }
+
     // pauli-x gate
     pub fn x() -> Self {
         let gate = Gate::OneQubit { matrix: [
@@ -208,6 +215,20 @@ impl QuantumGate {
             gate,
             arity: 1,
             name: Some("RZ".to_string())
+        }
+    }
+
+    // u3 gate (universal single-qubit gate)
+    pub fn u3(theta: f64, phi: f64, lambda: f64) -> Self {
+        let gate = Gate::Param1Q {
+            gate: Param1QGate::U3,
+            params: [theta, phi, lambda]
+        };
+
+        Self {
+            gate,
+            arity: 1,
+            name: Some("U3".to_string())
         }
     }
 

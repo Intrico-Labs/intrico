@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use crate::{core::circuit::GateOp, ir::IRMetadata};
+use crate::{core::{circuit::GateOp}, ir::{IRMetadata}};
 
 pub struct SequentialIR {
     n_qubits: usize,
@@ -44,13 +44,10 @@ impl Display for SequentialIR {
                     .map(|c| c.to_string())
                     .collect();
 
-                write!(f, "   {}: {}", idx + 1, gate_name)?;
+                let params = op.gate().params();
+                let metadata = op.metadata();
 
-                if !controls.is_empty() {
-                    write!(f, " (ctrl: {})", controls.join(", "))?;
-                }
-
-                writeln!(f, " -> target: {}", targets.join(", "))?;
+                writeln!(f, "   {{ ({idx}) Gate: {gate_name} Params: {params:?} Controls: {controls:?} Targets: {targets:?} Metadata: {metadata:?} }}")?;
             }
         }
 
