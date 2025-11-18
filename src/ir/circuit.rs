@@ -10,6 +10,12 @@ impl CircuitIR {
     pub fn save_json(&self) {
         todo!()
     }
+
+    pub fn num_qubits(&self) -> usize {
+        match self {
+            CircuitIR::Sequential(ir) => ir.num_qubits(),
+        }
+    }
 }
 
 impl Display for CircuitIR {

@@ -6,7 +6,7 @@ pub type Amplitude = Complex<f64>;
 
 // The QuantumState footprint
 pub trait QuantumState {
-    fn n_qubits(&self) -> usize;
+    fn num_qubits(&self) -> usize;
     fn len(&self) -> usize;
     
     fn as_slice(&self) -> &[Amplitude];

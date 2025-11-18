@@ -6,14 +6,14 @@ use crate::core::{Amplitude, state::QuantumState};
 // The dense statevector struct
 pub struct StateVectorDense {
     amplitudes: Vec<Amplitude>,
-    n_qubits: usize,
+    num_qubits: usize,
     len: usize,
 }
 
 // QuantumState trait implementation
 impl QuantumState for StateVectorDense {
-    fn n_qubits(&self) -> usize {
-        self.n_qubits
+    fn num_qubits(&self) -> usize {
+        self.num_qubits
     }
 
     fn len(&self) -> usize {
@@ -32,8 +32,8 @@ impl QuantumState for StateVectorDense {
 // StateVector implementations
 impl StateVectorDense {
     // Create a new statevector
-    pub fn new(n_qubits: usize) -> Self {
-        let len = 1<<n_qubits;
+    pub fn new(num_qubits: usize) -> Self {
+        let len = 1<<num_qubits;
         let mut amplitudes = vec![Amplitude::new(0.0, 0.0); len];
 
         // Defaulting to |0..0⟩ state
@@ -41,7 +41,7 @@ impl StateVectorDense {
 
         Self {
             amplitudes,
-            n_qubits,
+            num_qubits,
             len
         }
     }

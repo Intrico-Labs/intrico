@@ -3,22 +3,22 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use crate::{core::{circuit::GateOp}, ir::{IRMetadata}};
 
 pub struct SequentialIR {
-    n_qubits: usize,
+    num_qubits: usize,
     ops: Vec<GateOp>,
     pub metadata: IRMetadata
 }
 
 impl SequentialIR {
-    pub fn new(n_qubits: usize, ops: Vec<GateOp>) -> Self {
+    pub fn new(num_qubits: usize, ops: Vec<GateOp>) -> Self {
         Self {
-            n_qubits,
+            num_qubits,
             ops,
             metadata: IRMetadata::default()
         }
     }
 
-    pub fn n_qubits(&self) -> usize {
-        self.n_qubits
+    pub fn num_qubits(&self) -> usize {
+        self.num_qubits
     }
 }
 
@@ -26,7 +26,7 @@ impl Display for SequentialIR {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 
         writeln!(f, "CircuitIR (Sequential)")?;
-        writeln!(f, "Qubits: {}", self.n_qubits)?;
+        writeln!(f, "Qubits: {}", self.num_qubits)?;
         writeln!(f, "Operations:")?;
 
         if self.ops.is_empty() {
