@@ -26,8 +26,8 @@ impl Display for SequentialIR {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
 
         writeln!(f, "CircuitIR (Sequential)")?;
-        writeln!(f, "n_qubits: {}", self.n_qubits)?;
-        writeln!(f, "operations:")?;
+        writeln!(f, "Qubits: {}", self.n_qubits)?;
+        writeln!(f, "Operations:")?;
 
         if self.ops.is_empty() {
             writeln!(f, "   (no operations)")?;
@@ -53,6 +53,14 @@ impl Display for SequentialIR {
                 writeln!(f, " -> target: {}", targets.join(", "))?;
             }
         }
+
+        writeln!(f, "Metadata:")?;
+        writeln!(f, "   Version: {}", self.metadata.version)?;
+        writeln!(f, "   Name: {}", self.metadata.name)?;
+        writeln!(f, "   Depth: {:?}", self.metadata.depth)?;
+        writeln!(f, "   Tags: {:?}", self.metadata.tags)?;
+        writeln!(f, "   Created at: {}", self.metadata.created_at)?;
+
         Ok(())
     }
 }
