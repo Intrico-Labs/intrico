@@ -44,6 +44,13 @@ impl QuantumCircuit for SequentialCircuit {
             todo!()
         }
     }
+
+    fn to_ir(&self) -> CircuitIR {
+        // TODO: validate ops before building IR
+
+        let ir = SequentialIR::new(self.n_qubits, self.operations.clone());
+        CircuitIR::Sequential(ir)
+    }
 }
 
 impl SequentialCircuit {
@@ -63,14 +70,7 @@ impl SequentialCircuit {
 
     pub fn num_gates(&self) -> usize {
         self.operations.len()
-    }
-
-    pub fn to_ir(&self) -> CircuitIR {
-        // TODO: validate ops before building IR
-
-        let ir = SequentialIR::new(self.n_qubits, self.operations.clone());
-        CircuitIR::Sequential(ir)
-    }
+    }   
 }
 
 // Builder APIs
