@@ -1,7 +1,7 @@
-pub mod circuit_ir;
+pub mod circuit;
 pub mod metadata;
-pub mod sequential_ir;
+pub mod sequential;
 
-pub use circuit_ir::CircuitIR;
+pub use circuit::CircuitIR;
 pub use metadata::IRMetadata;
-pub use sequential_ir::SequentialIR;
+pub use sequential::SequentialIR;
