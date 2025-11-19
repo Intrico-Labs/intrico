@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{backend::{BackendResult, CompiledCircuit, ExecutionContext}, ir::CircuitIR};
 
 /// The intrico backend trait that all backends must implement
@@ -6,15 +8,16 @@ pub trait QuantumBackend {
     fn transpile(&self, circuit_ir: &CircuitIR) -> CompiledCircuit;
 
     /// Fit the circuit ir in the backend
-    fn prepare(&self, compiled: &CompiledCircuit) -> ExecutionContext;
+    fn prepare(&self, compiled: Arc<CompiledCircuit>, rnd_seed: Option<usize>) -> ExecutionContext;
 
     /// Execute the job
-    fn execute(&self, execution_ctx: &mut ExecutionContext) -> BackendResult;
+    fn execute(&self, execution_ctx: &mut ExecutionContext, shots: usize) -> BackendResult;
 
     /// Run the circuit
     fn run(&self, ir: CircuitIR) -> BackendResult {
         let compiled = self.transpile(&ir);
-        let mut ctx = self.prepare(&compiled);
-        self.execute(&mut ctx)
+        let compiled = Arc::new(compiled);
+        let mut ctx = self.prepare(compiled, None);
+        self.execute(&mut ctx, 1000)
     }
 }
