@@ -20,6 +20,10 @@ impl SequentialIR {
     pub fn num_qubits(&self) -> usize {
         self.num_qubits
     }
+
+    pub fn ops(&self) -> &Vec<GateOp> {
+        &self.ops
+    }
 }
 
 impl Display for SequentialIR {

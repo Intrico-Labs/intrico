@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use crate::ir::SequentialIR;
+use crate::{core::circuit::GateOp, ir::SequentialIR};
 
 pub enum CircuitIR {
     Sequential(SequentialIR),
@@ -14,6 +14,12 @@ impl CircuitIR {
     pub fn num_qubits(&self) -> usize {
         match self {
             CircuitIR::Sequential(ir) => ir.num_qubits(),
+        }
+    }
+
+    pub fn ops(&self) -> &Vec<GateOp> {
+        match self {
+            CircuitIR::Sequential(ir) => ir.ops(),
         }
     }
 }
