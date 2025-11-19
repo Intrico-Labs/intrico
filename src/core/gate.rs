@@ -2,7 +2,7 @@ use rusticle::{Complex, Matrix};
 
 use crate::core::Amplitude;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Gate {
     // single qubit gates
     OneQubit {
@@ -34,7 +34,7 @@ pub enum Gate {
 }
 
 // single qubit parameterized gates
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Param1QGate {
     Rz,
     Rx,
@@ -43,7 +43,7 @@ pub enum Param1QGate {
     U3
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct QuantumGate {
     gate: Gate,
     arity: usize,

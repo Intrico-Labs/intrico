@@ -1,5 +1,6 @@
 use rusticle::Matrix;
 use smallvec::SmallVec;
+use std::fmt::Debug;
 
 use crate::core::{Amplitude, QuantumGate};
 
@@ -16,15 +17,16 @@ pub struct CompiledCircuit {
 }
 
 /// A NativeOp is a low-level interpretation of the GateOp
+#[derive(Debug)]
 pub struct NativeOp {
     gate: QuantumGate,
-    params: [usize; 3],
+    params: Option<[f64; 3]>,
     controls: SmallVec<[usize; 2]>,
     targets: SmallVec<[usize; 2]>
 }
 
 impl NativeOp {
-    pub fn new(gate: QuantumGate, params: [usize; 3], controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
+    pub fn new(gate: QuantumGate, params: Option<[f64; 3]>, controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
         Self {
             gate,
             params,
@@ -34,6 +36,7 @@ impl NativeOp {
     }
 }
 
+#[derive(Debug)]
 pub struct FusedOp {
     op_index: usize,
     matrix: Matrix<Amplitude>
@@ -48,6 +51,7 @@ impl FusedOp {
     }
 }
 
+#[derive(Debug)]
 pub struct MeasurementOp {
     qubit_index: usize,
     creg_index: usize
@@ -62,6 +66,7 @@ impl MeasurementOp {
     }
 }
 
+#[derive(Debug)]
 pub struct CompiledCircuitMetadata {
     depth: Option<usize>
 }
@@ -127,6 +132,12 @@ impl CompiledCircuit {
 
     pub fn metadata(&self) -> &CompiledCircuitMetadata {
         &self.metadata
+    }
+}
+
+impl Debug for CompiledCircuit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CompiledCircuit").field("num_qubits", &self.num_qubits).field("optimization_level", &self.optimization_level).field("ops", &self.ops).field("fused_ops", &self.fused_ops).field("measurements", &self.measurements).field("creg_size", &self.creg_size).field("creg_mapping", &self.creg_mapping).field("metadata", &self.metadata).finish()
     }
 }
 
