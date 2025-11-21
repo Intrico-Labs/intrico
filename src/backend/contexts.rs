@@ -17,7 +17,7 @@ pub struct CompiledCircuit {
 }
 
 /// A NativeOp is a low-level interpretation of the GateOp
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NativeOp {
     gate: QuantumGate,
     params: Option<[f64; 3]>,
@@ -172,7 +172,10 @@ impl ExecutionContext {
 
         let dimension = 1 << compiled_circuit.num_qubits;
 
-        let statevector = vec![Amplitude::new(0.0, 0.0); dimension];
+        // create new statevector and set to ket 00..0
+        let mut statevector = vec![Amplitude::new(0.0, 0.0); dimension];
+        statevector[0] = Amplitude::new(1.0, 0.0);
+
 
         ExecutionContext {
             compiled_ref: compiled_circuit,
@@ -186,8 +189,8 @@ impl ExecutionContext {
         &self.compiled_ref
     }
 
-    pub fn statevector(&self) -> &Vec<Amplitude> {
-        &self.statevector
+    pub fn statevector(&mut self) -> &mut [Amplitude] {
+        self.statevector.as_mut_slice()
     }
 
     pub fn fused_matrices(&self) -> &Vec<Matrix<Amplitude>> {

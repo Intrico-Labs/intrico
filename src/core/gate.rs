@@ -21,6 +21,9 @@ pub enum Gate {
     },
 
     // controlled gates
+    // TODO: convert CX, CZ to control gates for faster execution
+    // add specific functions that execute these gates faster than
+    // normal matrix multiplication
     Controlled {
         controls: usize,
         gate: Box<Gate>
