@@ -238,10 +238,25 @@ impl QuantumGate {
     // controlled gates
     pub fn cx() -> Self {
         let gate = Gate::TwoQubit { matrix: [
-            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
-            Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
-            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
-            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(1.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0),
+
+            Complex::new(0.0, 0.0), 
+            Complex::new(1.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0),
+
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(1.0, 0.0),
+
+            Complex::new(0.0, 0.0), 
+            Complex::new(0.0, 0.0), 
+            Complex::new(1.0, 0.0), 
+            Complex::new(0.0, 0.0),
         ] };
 
         Self {

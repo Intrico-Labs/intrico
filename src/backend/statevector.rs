@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{cmp::{max, min}, sync::Arc};
 
 use rusticle::{Complex};
 
@@ -102,38 +102,54 @@ impl QuantumBackend for StatevectorBackend {
 
 fn apply_single_qubit_gate(matrix: &[Complex<f64>; 4], state: &mut [Amplitude], target: usize, n: usize) {
     let stride = 1 << target;
-    // let period = stride << 1;
-
-    let (u00, u01) = (matrix[0], matrix[1]);
-    let (u10, u11) = (matrix[2], matrix[3]);
+    let period = stride << 1;
     
     let mut idx = 0;
-    while idx + stride < n { 
-        println!("{}, {}", idx, idx+stride);
-        let (a0, a1) = (state[idx], state[idx+stride]);
-        state[idx] = u00*a0 + u01*a1;
-        state[idx+stride] = u10*a0 + u11*a1;
-        idx += 1;
+    while idx < n {
+        let limit = idx + stride;
+        let mut i0 = idx;
+
+        while i0 < limit { 
+            let i1 = i0 + stride;
+            let (a0, a1) = (state[i0], state[i1]);
+
+            state[i0] = matrix[0]*a0 + matrix[1]*a1;
+            state[i1] = matrix[2]*a0 + matrix[3]*a1;
+
+            i0 += 1;
+        }
+        idx += period;
     }
+    
 }
 
 fn apply_two_qubit_gate(matrix: &[Complex<f64>; 16], state: &mut [Amplitude], control: usize, target: usize, n: usize) {
 
-    let stride_c = 1 << control;
-    let stride_t = 1 << target;
+    let a = min(control, target);
+    let b = max(control, target);
 
-    for i in 0..n {
-        let i00 = i & !(stride_c | stride_t); // both 0
-        let i01 = i00 | stride_c; // ctrl 1
-        let i10 = i00 | stride_t; // target 1
-        let i11 = i01 | stride_t; // both 1
+    let bit_t = 1 << target;
+    let bit_c = 1 << control;
 
-        if i != i00 {continue};
+
+    let specs = n/4;
+
+    for k in 0..specs {
+        let mask1 = (1 << a) - 1;
+        let temp = ((k & !mask1) << 1) | (k & mask1);
+
+        let mask2 = (1 << b) - 1;
+        let base = ((temp & !mask2) << 1) | (temp & mask2);
+
+        let i00 = base; // 00 state
+        let i01 = base | bit_t; // 01 state
+        let i10 = base | bit_c; // 10 state
+        let i11 = base | bit_c | bit_t; // 11 state
 
         // caching current values
         let (a0, a1) = (state[i00], state[i01]);
         let (a2, a3) = (state[i10], state[i11]);
-
+    
         // multiplying matrix
         state[i00] = matrix[0] * a0 +
             matrix[1] * a1 +
@@ -155,7 +171,6 @@ fn apply_two_qubit_gate(matrix: &[Complex<f64>; 16], state: &mut [Amplitude], co
             matrix[14] * a2 +
             matrix[15] * a3;
     }
-
 }
 
 
