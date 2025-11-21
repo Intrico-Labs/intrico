@@ -2,7 +2,7 @@ use std::{cmp::{max, min}, sync::Arc};
 
 use rusticle::{Complex};
 
-use crate::{backend::{BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, contexts::{CompiledCircuitMetadata, MeasurementOp, NativeOp}}, core::{Amplitude, gate::Gate}, ir::CircuitIR};
+use crate::{backend::{BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, contexts::{CompiledCircuitMetadata, MeasurementOp, NativeOp}, results::ExecutionMetrics}, core::{Amplitude, gate::Gate}, ir::CircuitIR};
 
 pub struct StatevectorBackend {
     config: BackendConfig,
@@ -94,7 +94,9 @@ impl QuantumBackend for StatevectorBackend {
             
         }
 
-        BackendResult {  }
+        let metrics = ExecutionMetrics::new(1.0, 10);
+
+        BackendResult::new(vec![], statevec.to_vec(), metrics, 12345)
 
     }
     
