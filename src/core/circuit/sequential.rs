@@ -80,7 +80,7 @@ impl SequentialCircuit {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
         }
-        let op = GateOp::new(QuantumGate::x(), &[target], &[]);
+        let op = GateOp::new(QuantumGate::X, &[target], &[]);
         self.add_op(op);
         self
     }
@@ -89,7 +89,7 @@ impl SequentialCircuit {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
         }
-        let op = GateOp::new(QuantumGate::y(), &[target], &[]);
+        let op = GateOp::new(QuantumGate::Y, &[target], &[]);
         self.add_op(op);
         self
     }
@@ -201,7 +201,7 @@ impl Display for SequentialCircuit {
         }
 
         for (idx, op) in self.operations.iter().enumerate() {
-            let name = op.gate().name().clone().unwrap_or("Custom".to_string());
+            let name = op.gate().clone();
             let qubits = if op.targets().len() == 1 {
                 format!("q[{}]", op.targets()[0])
             } else {
@@ -210,7 +210,7 @@ impl Display for SequentialCircuit {
 
             writeln!(
                 f, 
-                "   Gate {}: {} -> {} (Layer {})",
+                "   Gate {}: {:?} -> {} (Layer {:?})",
                 idx+1,
                 name,
                 qubits,
