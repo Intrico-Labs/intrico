@@ -2,7 +2,15 @@ use std::{cmp::{max, min}, sync::Arc};
 
 use rusticle::{Complex};
 
-use crate::{backend::{BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, contexts::{CompiledCircuitMetadata, MeasurementOp, NativeOp}, results::ExecutionMetrics}, core::{Amplitude, gate::Gate}, ir::CircuitIR};
+use crate::{
+    backend::{
+        BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, 
+        contexts::{CompiledCircuitMetadata, ExecutableGate, MeasurementOp, NativeOp}, 
+        results::ExecutionMetrics
+    }, 
+    core::{Amplitude}, 
+    ir::CircuitIR
+};
 
 pub struct StatevectorBackend {
     config: BackendConfig,
@@ -31,7 +39,7 @@ impl QuantumBackend for StatevectorBackend {
                 let creg_size = gate_ops.len();
                 for (idx, op) in gate_ops.iter().enumerate() {
                     // Copy gateop to nativeop as it is
-                    let n_op = NativeOp::new(op.gate().clone(), op.gate().params().copied(), op.controls().clone(), op.targets().clone());
+                    let n_op = NativeOp::new(op.gate().clone(), op.controls().clone(), op.targets().clone());
 
                     ops.push(n_op);
                     creg_mapping.push((idx, idx));
@@ -55,7 +63,6 @@ impl QuantumBackend for StatevectorBackend {
             circuit_ir.num_qubits(),
             self.config.optimization_level,
             ops,
-            vec![],
             measurements,
             creg_size,
             creg_mapping,
@@ -79,19 +86,39 @@ impl QuantumBackend for StatevectorBackend {
 
         for op in gateops {
             let gate = op.gate();
-            
-            match gate.gate() {
-                Gate::OneQubit { matrix } => {
-                    apply_single_qubit_gate(matrix, statevec, op.targets()[0], n);
+
+            match gate {
+                ExecutableGate::Unitary { matrix, arity } => {
+                    match arity {
+                        1 => {
+                            let mat_array: [Amplitude; 4] = [
+                                matrix[0], matrix[1],
+                                matrix[2], matrix[3]
+                            ];
+                            apply_single_qubit_gate(&mat_array, statevec, op.targets()[0], n);
+                        },
+                        2 => {
+                            let mat_array: [Amplitude; 16] = [
+                                matrix[0], matrix[1], matrix[2], matrix[3],
+                                matrix[4], matrix[5], matrix[6], matrix[7],
+                                matrix[8], matrix[9], matrix[10], matrix[11],
+                                matrix[12], matrix[13], matrix[14], matrix[15]
+                            ];
+                            apply_two_qubit_gate(&mat_array, statevec, op.controls()[0], op.targets()[0], n);
+                        },
+                        _ => panic!("Unsupported gate arity: {}", arity)
+                    }
                 },
-                Gate::TwoQubit { matrix } => {
-                    apply_two_qubit_gate(matrix, statevec, op.controls()[0], op.targets()[0], n);
+                ExecutableGate::ParamUnitary { fun, params } => {
+                    let matrix = fun(params);
+                    let mat_array: [Amplitude; 4] = [
+                        matrix[0], matrix[1],
+                        matrix[2], matrix[3]
+                    ];
+                    apply_single_qubit_gate(&mat_array, statevec, op.targets()[0], n);
                 },
-                Gate::Param1Q { gate, params } => todo!(),
-                Gate::Controlled { controls, gate } => todo!(),
-                Gate::Custom { arity, matrix } => todo!(),
             }
-            
+
         }
 
         let metrics = ExecutionMetrics::new(1.0, 10);

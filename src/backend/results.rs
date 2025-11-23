@@ -24,6 +24,10 @@ impl BackendResult {
             rng_seed
         }
     }
+
+    pub fn final_state(&self) -> &[Amplitude] {
+        &self.final_state
+    }
 }
 
 pub struct ExecutionMetrics {
