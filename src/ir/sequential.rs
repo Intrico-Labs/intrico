@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use crate::{core::{circuit::GateOp}, ir::{IRMetadata}};
+use crate::{core::{circuit::GateOp}, ir::IRMetadata};
 
 pub struct SequentialIR {
     num_qubits: usize,
@@ -37,9 +37,7 @@ impl Display for SequentialIR {
             writeln!(f, "   (no operations)")?;
         } else {
             for (idx, op) in self.ops.iter().enumerate() {
-                let gate_name = op.gate().name().as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("Custom");
+                let gate_name = op.gate();
 
                 let targets: Vec<String> = op.targets().iter()
                     .map(|t| t.to_string())
@@ -48,10 +46,10 @@ impl Display for SequentialIR {
                     .map(|c| c.to_string())
                     .collect();
 
-                let params = op.gate().params();
+                // let params = op.gate().params();
                 let metadata = op.metadata();
 
-                writeln!(f, "   {{ ({idx}) Gate: {gate_name} Params: {params:?} Controls: {controls:?} Targets: {targets:?} Metadata: {metadata:?} }}")?;
+                writeln!(f, "   {{ ({idx}) Gate: {:?} Controls: {controls:?} Targets: {targets:?} Metadata: {metadata:?} }}", gate_name)?;
             }
         }
 
