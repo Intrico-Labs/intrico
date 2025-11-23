@@ -1,7 +1,7 @@
 use smallvec::SmallVec;
 use std::{fmt::Debug, sync::Arc};
 
-use crate::core::{Amplitude, QuantumGate};
+use crate::{backend::kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3}, core::{Amplitude, QuantumGate}};
 
 /// The CompiledCircuit gate that is returned after transpiling a Circuit IR
 pub struct CompiledCircuit {
@@ -25,12 +25,13 @@ pub struct NativeOp {
 #[derive(Debug, Clone)]
 pub enum ExecutableGate {
     Unitary { matrix: Vec<Amplitude>, arity: usize },
-    ParamUnitary { fun: fn(&[f64]) -> Vec<Amplitude>, params: Vec<f64>},
+    ParamUnitary { kernel_id: usize, params: Vec<f64>},
+    Measurement,
     // other kernel stuff (KernelCX, KernelCZ)
 }
 
 impl NativeOp {
-    pub fn new(gate: QuantumGate, controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
+    pub fn new(gate: &QuantumGate, controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
         use std::f64::consts::FRAC_1_SQRT_2;
 
         let exec_gate = match &gate {
@@ -131,60 +132,19 @@ impl NativeOp {
                 arity: 2
             },
             QuantumGate::RX { theta } => ExecutableGate::ParamUnitary {
-                fun: |params| {
-                    let half_theta = params[0] / 2.0;
-                    let cos_val = half_theta.cos();
-                    let sin_val = half_theta.sin();
-                    vec![
-                        Amplitude::new(cos_val, 0.0),
-                        Amplitude::new(0.0, -sin_val),
-                        Amplitude::new(0.0, -sin_val),
-                        Amplitude::new(cos_val, 0.0)
-                    ]
-                },
+                kernel_id: KERNEL_RX,
                 params: vec![*theta]
             },
             QuantumGate::RY { theta } => ExecutableGate::ParamUnitary {
-                fun: |params| {
-                    let half_theta = params[0] / 2.0;
-                    let cos_val = half_theta.cos();
-                    let sin_val = half_theta.sin();
-                    vec![
-                        Amplitude::new(cos_val, 0.0),
-                        Amplitude::new(-sin_val, 0.0),
-                        Amplitude::new(sin_val, 0.0),
-                        Amplitude::new(cos_val, 0.0)
-                    ]
-                },
+                kernel_id: KERNEL_RY,
                 params: vec![*theta]
             },
             QuantumGate::RZ { theta } => ExecutableGate::ParamUnitary {
-                fun: |params| {
-                    let half_theta = params[0] / 2.0;
-                    vec![
-                        Amplitude::new(half_theta.cos(), -half_theta.sin()),
-                        Amplitude::new(0.0, 0.0),
-                        Amplitude::new(0.0, 0.0),
-                        Amplitude::new(half_theta.cos(), half_theta.sin())
-                    ]
-                },
+                kernel_id: KERNEL_RZ,
                 params: vec![*theta]
             },
             QuantumGate::U3 { theta, phi, lambda } => ExecutableGate::ParamUnitary {
-                fun: |params| {
-                    let theta = params[0];
-                    let phi = params[1];
-                    let lambda = params[2];
-                    let half_theta = theta / 2.0;
-                    let cos_val = half_theta.cos();
-                    let sin_val = half_theta.sin();
-                    vec![
-                        Amplitude::new(cos_val, 0.0),
-                        Amplitude::new(-lambda.cos() * sin_val, -lambda.sin() * sin_val),
-                        Amplitude::new(phi.cos() * sin_val, phi.sin() * sin_val),
-                        Amplitude::new((phi + lambda).cos() * cos_val, (phi + lambda).sin() * cos_val)
-                    ]
-                },
+                kernel_id: KERNEL_U3,
                 params: vec![*theta, *phi, *lambda]
             },
             QuantumGate::Custom { name: _, arity } => {
@@ -199,6 +159,9 @@ impl NativeOp {
                     matrix: elements,
                     arity: *arity
                 }
+            },
+            QuantumGate::Measurement => { 
+                ExecutableGate::Measurement
             },
         };
 
@@ -224,16 +187,25 @@ impl NativeOp {
 
 #[derive(Debug)]
 pub struct MeasurementOp {
+    creg_index: usize,
     qubit_index: usize,
-    creg_index: usize
+    
 }
 
 impl MeasurementOp {
-    pub fn new(qubit_index: usize, creg_index: usize) -> Self {
+    pub fn new(creg_index: usize, qubit_index: usize) -> Self {
         Self {
-            qubit_index,
-            creg_index
+            creg_index,
+            qubit_index
         }
+    }
+
+    pub fn qubit_index(&self) -> usize {
+        self.qubit_index
+    }
+
+    pub fn creg_index(&self) -> usize {
+        self.creg_index
     }
 }
 
