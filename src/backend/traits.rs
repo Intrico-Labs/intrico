@@ -14,10 +14,10 @@ pub trait QuantumBackend {
     fn execute(&self, execution_ctx: &mut ExecutionContext, shots: usize) -> BackendResult;
 
     /// Run the circuit
-    fn run(&self, ir: CircuitIR) -> BackendResult {
+    fn run(&self, ir: CircuitIR, shots: usize) -> BackendResult {
         let compiled = self.transpile(&ir);
         let compiled = Arc::new(compiled);
         let mut ctx = self.prepare(compiled, None);
-        self.execute(&mut ctx, 1000)
+        self.execute(&mut ctx, shots)
     }
 }
