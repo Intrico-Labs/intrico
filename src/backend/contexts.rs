@@ -317,11 +317,15 @@ impl ExecutionContext {
         &self.compiled_ref
     }
 
+    pub fn compiled_ops(&self) -> &[NativeOp] {
+        self.compiled_ref.ops()
+    }
+
     pub fn statevector(&mut self) -> &mut [Amplitude] {
         self.statevector.as_mut_slice()
     }
 
-    pub fn precomputed(&self) -> &Vec<PrecomputedGate> {
+    pub fn precomputed(&self) -> &[PrecomputedGate] {
         &self.precomputed
     }
 

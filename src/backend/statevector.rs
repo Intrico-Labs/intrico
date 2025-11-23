@@ -1,10 +1,12 @@
-use std::{cmp::{max, min}, collections::HashMap, sync::Arc};
+use std::{cmp::{max, min}, collections::HashMap, sync::Arc, time::Instant};
 
-use rusticle::{Complex, core::complex};
+use rand::{Rng, SeedableRng, rng, rngs::StdRng};
+use rand_distr::{Distribution};
+use rusticle::Complex;
 
 use crate::{
     backend::{
-        BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, contexts::{CompiledCircuitMetadata, ExecutableGate, MeasurementOp, NativeOp, PrecomputedGate}, kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3, KernelDef}, results::ExecutionMetrics
+        BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, SampleResult, contexts::{CompiledCircuitMetadata, ExecutableGate, MeasurementOp, NativeOp, PrecomputedGate}, kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3, KernelDef}, results::ExecutionMetrics
     }, 
     core::{Amplitude, QuantumGate}, 
     ir::CircuitIR
@@ -134,62 +136,122 @@ impl QuantumBackend for StatevectorBackend {
     }
     
     fn execute(&self, execution_ctx: &mut ExecutionContext, shots: usize) -> BackendResult {
-        
-        let gateops = {
-            execution_ctx.compiled_ref().ops().to_vec()
-        };
-        
+
+        let gateops = execution_ctx.compiled_ops().to_vec();
+
+        let pre = execution_ctx.precomputed().to_vec();
+
         let statevec = execution_ctx.statevector();
 
         let n = statevec.len();
 
-        for op in gateops {
-            let gate = op.gate();
+        let mut applied_ops = 0;
 
-            match gate {
-                ExecutableGate::Unitary { matrix, arity } => {
-                    match arity {
-                        1 => {
-                            let mat_array: [Amplitude; 4] = [
-                                matrix[0], matrix[1],
-                                matrix[2], matrix[3]
-                            ];
-                            apply_single_qubit_gate(&mat_array, statevec, op.targets()[0], n);
-                        },
-                        2 => {
-                            let mat_array: [Amplitude; 16] = [
-                                matrix[0], matrix[1], matrix[2], matrix[3],
-                                matrix[4], matrix[5], matrix[6], matrix[7],
-                                matrix[8], matrix[9], matrix[10], matrix[11],
-                                matrix[12], matrix[13], matrix[14], matrix[15]
-                            ];
-                            apply_two_qubit_gate(&mat_array, statevec, op.controls()[0], op.targets()[0], n);
-                        },
-                        _ => panic!("Unsupported gate arity: {}", arity)
-                    }
+        let start_time = Instant::now();
+
+        for (idx, op) in gateops.iter().enumerate() {
+            match pre[idx] {
+                PrecomputedGate::OneQ(mat) => {
+                    apply_single_qubit_gate(&mat, statevec, op.targets()[0], n);
+
+                    applied_ops += 1;
                 },
-                ExecutableGate::ParamUnitary { kernel_id, params } => {
-                    let matrix = (self.kernels.get(kernel_id).unwrap().eval)(&params);  
-                    let mat_array: [Amplitude; 4] = [
-                        matrix[0], matrix[1],
-                        matrix[2], matrix[3]
-                    ];
-                    apply_single_qubit_gate(&mat_array, statevec, op.targets()[0], n);
+                PrecomputedGate::TwoQ(mat) => {
+                    apply_two_qubit_gate(&mat, statevec, op.controls()[0], op.targets()[0], n);
+
+                    applied_ops += 1;
                 },
-                ExecutableGate::Measurement => {
-                    // Add measurement logic
-                }
+                PrecomputedGate::None => {},
             }
 
         }
 
-        let metrics = ExecutionMetrics::new(1.0, 10);
+        let execution_time = start_time.elapsed().as_nanos();
 
-        BackendResult::new(vec![], statevec.to_vec(), metrics, 12345)
+        let metrics = ExecutionMetrics::new(execution_time, applied_ops);
+
+        BackendResult::new(statevec.to_vec(), metrics, 12345)
 
     }
     
 }
+
+impl StatevectorBackend {
+    pub fn sample(&self, state: &[Complex<f64>], num_qubits: usize, shots: usize, seed: Option<u64>) -> SampleResult {
+        let start = Instant::now();
+
+        let probs = compute_probabilities(state);
+
+        let raw_counts = multinomial_sample(&probs, shots, seed);
+
+        let mut counts = HashMap::new();
+        for (basis, c) in raw_counts.into_iter().enumerate() {
+            if c == 0 { continue; }
+            let bits = extract_bitstring(basis, num_qubits);
+            counts.insert(bits, c);
+        }
+
+        SampleResult::new(counts, shots, start.elapsed().as_nanos())
+    }
+}
+
+fn cumulative_probs(probs: &[f64]) -> Vec<f64> {
+    let mut cum = Vec::with_capacity(probs.len());
+    let mut sum = 0.0;
+
+    for &p in probs {
+        sum += p;
+        cum.push(sum);
+    }
+
+    cum
+}
+
+fn sample_single(cum: &[f64], x: f64) -> usize {
+    match cum.binary_search_by(|v| v.partial_cmp(&x).unwrap()) {
+        Ok(i) => i,
+        Err(i) => i,
+    }
+}
+
+fn multinomial_sample(probs: &[f64], shots: usize, seed: Option<u64>) -> Vec<usize> {
+    let cum = cumulative_probs(probs);
+
+    let mut counts = vec![0usize; probs.len()];
+
+    let mut rng = match seed {
+        Some(s) => StdRng::seed_from_u64(s),
+        None => StdRng::from_os_rng(),
+    };
+
+    for _ in 0..shots {
+        let x: f64 = rng.random();
+        let idx = sample_single(&cum, x);
+        counts[idx] += 1;
+    }
+
+    counts
+}
+
+
+fn compute_probabilities(state: &[Amplitude]) -> Vec<f64> {
+    let mut probs = Vec::with_capacity(state.len());
+    for amp in state {
+        probs.push(amp.real * amp.real + amp.imag * amp.imag);
+    }
+    probs
+}
+
+fn extract_bitstring(idx: usize, num_qubits: usize) -> String {
+    let mut s = String::with_capacity(num_qubits);
+    for q in 0..num_qubits {
+        let bit = (idx >> q) & 1;
+        s.push(if bit == 1 { '1' } else { '0' });
+    }
+    s
+}
+
+
 
 fn apply_single_qubit_gate(matrix: &[Complex<f64>; 4], state: &mut [Amplitude], target: usize, n: usize) {
     let stride = 1 << target;
