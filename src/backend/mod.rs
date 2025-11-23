@@ -3,6 +3,7 @@ pub mod results;
 pub mod statevector;
 pub mod contexts;
 pub mod config;
+pub mod kernels;
 
 pub use config::BackendConfig;
 pub use results::{BackendResult, SampleResult};
