@@ -18,6 +18,8 @@ pub enum QuantumGate {
     RZ {theta: f64},
     U3 {theta: f64, phi: f64, lambda: f64},
 
+    Measurement,
+
     // custom gates
     Custom { name: String, arity: usize }
 }

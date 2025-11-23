@@ -1,19 +1,18 @@
-use std::{cmp::{max, min}, sync::Arc};
+use std::{cmp::{max, min}, collections::HashMap, sync::Arc};
 
-use rusticle::{Complex};
+use rusticle::{Complex, core::complex};
 
 use crate::{
     backend::{
-        BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, 
-        contexts::{CompiledCircuitMetadata, ExecutableGate, MeasurementOp, NativeOp}, 
-        results::ExecutionMetrics
+        BackendConfig, BackendResult, CompiledCircuit, ExecutionContext, QuantumBackend, contexts::{CompiledCircuitMetadata, ExecutableGate, MeasurementOp, NativeOp, PrecomputedGate}, kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3, KernelDef}, results::ExecutionMetrics
     }, 
-    core::{Amplitude}, 
+    core::{Amplitude, QuantumGate}, 
     ir::CircuitIR
 };
 
 pub struct StatevectorBackend {
     config: BackendConfig,
+    kernels: HashMap<usize, KernelDef>,
     // capabilities (supports_simd, supports_gpu_accel, etc)
     // logging (enable_metrics, etc)
 }
@@ -28,7 +27,7 @@ impl QuantumBackend for StatevectorBackend {
         let mut measurements: Vec<MeasurementOp> = vec![];
 
         // Classical register mapping
-        let creg_size = 0;
+        let mut creg_size = 0;
         let mut creg_mapping: Vec<(usize, usize)> = vec![];
 
 
@@ -36,17 +35,28 @@ impl QuantumBackend for StatevectorBackend {
             0 => {
                 // No optimizations
                 let gate_ops = circuit_ir.ops();
-                let creg_size = gate_ops.len();
-                for (idx, op) in gate_ops.iter().enumerate() {
-                    // Copy gateop to nativeop as it is
-                    let n_op = NativeOp::new(op.gate().clone(), op.controls().clone(), op.targets().clone());
+                for op in gate_ops {
+                    match op.gate() {
+                        QuantumGate::Measurement => {
+                            let qubit = op.targets()[0];
+                            let creg = measurements.len();
+                            let meas = MeasurementOp::new(creg, qubit);
 
-                    ops.push(n_op);
-                    creg_mapping.push((idx, idx));
+                            measurements.push(meas);
 
-                    let meas = MeasurementOp::new(idx, idx);
+                            creg_size += 1;
+                        }
+                        _ => {
+                            // Copy gateop to nativeop as it is
+                            let n_op = NativeOp::new(op.gate(), op.controls().clone(), op.targets().clone());
 
-                    measurements.push(meas);
+                            ops.push(n_op);
+                        }
+                    }
+                }
+
+                for meas in &measurements {
+                    creg_mapping.push((meas.creg_index(), meas.qubit_index()));
                 }
 
             }
@@ -71,7 +81,56 @@ impl QuantumBackend for StatevectorBackend {
     }
     
     fn prepare(&self, compiled: Arc<CompiledCircuit>, rng_seed: Option<usize>) -> ExecutionContext {
-        ExecutionContext::new(compiled, rng_seed)
+        // clone to avoid borrow checker errors
+        let compiled_clone = Arc::clone(&compiled);
+
+        let mut ctx = ExecutionContext::new(compiled_clone, rng_seed);
+
+        let ops = compiled.ops();
+
+        ctx.precomputed = vec![PrecomputedGate::None; ops.len()];
+
+        for (i, op) in ops.iter().enumerate() {
+            match op.gate() {
+                ExecutableGate::Unitary { matrix, arity } => {
+                    match arity {
+                        1 => {
+                            let arr: [Amplitude;4] = [
+                                matrix[0], matrix[1],
+                                matrix[2], matrix[3],
+                            ];
+                            ctx.precomputed[i] = PrecomputedGate::OneQ(arr);
+                        }
+                        2 => {
+                            let mut a: [Amplitude;16] = [Amplitude::new(0.0,0.0); 16];
+                            for j in 0..16 { a[j] = matrix[j]; }
+                            ctx.precomputed[i] = PrecomputedGate::TwoQ(a);
+                        }
+                        _ => {}
+                    }
+                }
+
+                ExecutableGate::ParamUnitary { kernel_id, params } => {
+                    let kernel = self.kernels.get(kernel_id)
+                        .expect("kernel id missing in registry");
+                    let mat = (kernel.eval)(&params);
+                    if kernel.arity == 1 {
+                        let arr: [Amplitude;4] = [ mat[0], mat[1], mat[2], mat[3] ];
+                        ctx.precomputed[i] = PrecomputedGate::OneQ(arr);
+                    } else if kernel.arity == 2 {
+                        let mut a: [Amplitude;16] = [Amplitude::new(0.0,0.0); 16];
+                        for j in 0..16 { a[j] = mat[j]; }
+                        ctx.precomputed[i] = PrecomputedGate::TwoQ(a);
+                    } else {
+                    }
+                }
+
+                ExecutableGate::Measurement => { }
+            }
+        }
+
+        ctx
+
     }
     
     fn execute(&self, execution_ctx: &mut ExecutionContext, shots: usize) -> BackendResult {
@@ -109,14 +168,17 @@ impl QuantumBackend for StatevectorBackend {
                         _ => panic!("Unsupported gate arity: {}", arity)
                     }
                 },
-                ExecutableGate::ParamUnitary { fun, params } => {
-                    let matrix = fun(params);
+                ExecutableGate::ParamUnitary { kernel_id, params } => {
+                    let matrix = (self.kernels.get(kernel_id).unwrap().eval)(&params);  
                     let mat_array: [Amplitude; 4] = [
                         matrix[0], matrix[1],
                         matrix[2], matrix[3]
                     ];
                     apply_single_qubit_gate(&mat_array, statevec, op.targets()[0], n);
                 },
+                ExecutableGate::Measurement => {
+                    // Add measurement logic
+                }
             }
 
         }
@@ -206,6 +268,64 @@ fn apply_two_qubit_gate(matrix: &[Complex<f64>; 16], state: &mut [Amplitude], co
 
 impl StatevectorBackend {
     pub fn new(config: BackendConfig) -> Self {
-        StatevectorBackend { config }
+
+        let mut kernels: HashMap<usize, KernelDef> = HashMap::new();
+
+        kernels.insert(KERNEL_RX, KernelDef {
+            arity: 1,
+            eval: |params| {
+                let th = params[0] / 2.0;
+                vec![
+                    Amplitude::new(th.cos(), 0.0),
+                    Amplitude::new(0.0, -th.sin()),
+                    Amplitude::new(0.0, -th.sin()),
+                    Amplitude::new(th.cos(), 0.0),
+                ]
+            }
+        });
+
+        kernels.insert(KERNEL_RY, KernelDef {
+            arity: 1,
+            eval: |params| {
+                let th = params[0] / 2.0;
+                vec![
+                    Amplitude::new(th.cos(), 0.0),
+                    Amplitude::new(-th.sin(), 0.0),
+                    Amplitude::new(th.sin(), 0.0),
+                    Amplitude::new(th.cos(), 0.0),
+                ]
+            }
+        });
+
+        kernels.insert(KERNEL_RZ, KernelDef {
+            arity: 1,
+            eval: |params| {
+                let th = params[0] / 2.0;
+                vec![
+                    Amplitude::new(th.cos(), -th.sin()),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(th.cos(), th.sin()),
+                ]
+            }
+        });
+
+        kernels.insert(KERNEL_U3, KernelDef {
+            arity: 1,
+            eval: |params| {
+                let theta = params[0];
+                let phi = params[1];
+                let lambda = params[2];
+                let th = theta / 2.0;
+                vec![
+                    Amplitude::new(th.cos(), 0.0),
+                    Amplitude::new(-lambda.cos() * th.sin(), -lambda.sin() * th.sin()),
+                    Amplitude::new(phi.cos() * th.sin(), phi.sin() * th.sin()),
+                    Amplitude::new((phi + lambda).cos() * th.cos(), (phi + lambda).sin() * th.cos()),
+                ]
+            }
+        });
+
+        StatevectorBackend { config, kernels }
     }
 }
