@@ -47,13 +47,14 @@ impl ExecutionMetrics {
 pub struct SampleResult {
     counts: BTreeMap<String, usize>,
     pub shots: usize,
-    pub execution_time: u128,
+    /// Execution time (in milliseconds)
+    pub execution_time: f64,
     #[allow(dead_code)]
     rng_seed: u64,
 }
 
 impl SampleResult {
-    pub fn new(counts: BTreeMap<String, usize>, shots: usize, execution_time: u128, rng_seed: u64) -> Self {
+    pub fn new(counts: BTreeMap<String, usize>, shots: usize, execution_time: f64, rng_seed: u64) -> Self {
         Self {
             counts,
             shots,

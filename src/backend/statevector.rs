@@ -199,7 +199,7 @@ impl StatevectorBackend {
             counts.insert(bits, c);
         }
 
-        let end_time = start_time.elapsed().as_nanos();
+        let end_time = start_time.elapsed().as_micros() as f64 / 1000.0;
 
 
 
