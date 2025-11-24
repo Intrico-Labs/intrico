@@ -12,3 +12,8 @@
 
 </div>
 
+## Examples
+
+| Example | Description | Link |
+|---------|-------------|------|
+| Bell Pair | Create and measure an entangled Bell state | [bell_pair.rs](examples/bell_pair.rs) |
