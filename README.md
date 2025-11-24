@@ -12,6 +12,21 @@
 
 </div>
 
+## Installation
+
+Add Intrico to your `Cargo.toml`:
+
+```toml
+[dependencies]
+intrico = "2.5.0"
+```
+
+Or install using cargo:
+
+```bash
+cargo add intrico
+```
+
 ## Examples
 
 | Example | Description | Link |
