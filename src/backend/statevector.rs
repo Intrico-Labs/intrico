@@ -1,7 +1,6 @@
-use std::{cmp::{max, min}, collections::HashMap, sync::Arc, time::Instant};
+use std::{cmp::{max, min}, collections::{HashMap, BTreeMap}, sync::Arc, time::Instant};
 
-use rand::{Rng, SeedableRng, rng, rngs::StdRng};
-use rand_distr::{Distribution};
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use rusticle::Complex;
 
 use crate::{
@@ -135,7 +134,7 @@ impl QuantumBackend for StatevectorBackend {
 
     }
     
-    fn execute(&self, execution_ctx: &mut ExecutionContext, shots: usize) -> BackendResult {
+    fn execute(&self, execution_ctx: &mut ExecutionContext) -> BackendResult {
 
         let gateops = execution_ctx.compiled_ops().to_vec();
 
@@ -170,7 +169,7 @@ impl QuantumBackend for StatevectorBackend {
 
         let metrics = ExecutionMetrics::new(execution_time, applied_ops);
 
-        BackendResult::new(statevec.to_vec(), metrics, 12345)
+        BackendResult::new(statevec.to_vec(), metrics)
 
     }
     
@@ -178,20 +177,30 @@ impl QuantumBackend for StatevectorBackend {
 
 impl StatevectorBackend {
     pub fn sample(&self, state: &[Complex<f64>], num_qubits: usize, shots: usize, seed: Option<u64>) -> SampleResult {
-        let start = Instant::now();
+        let start_time = Instant::now();
 
         let probs = compute_probabilities(state);
 
-        let raw_counts = multinomial_sample(&probs, shots, seed);
+        let rng_seed = if seed.is_some() {
+            seed.unwrap()
+        } else {
+            rand::rng().random::<u64>()
+        };
 
-        let mut counts = HashMap::new();
+        let raw_counts = multinomial_sample(&probs, shots, rng_seed);
+
+        let mut counts = BTreeMap::new();
         for (basis, c) in raw_counts.into_iter().enumerate() {
             if c == 0 { continue; }
             let bits = extract_bitstring(basis, num_qubits);
             counts.insert(bits, c);
         }
 
-        SampleResult::new(counts, shots, start.elapsed().as_nanos())
+        let end_time = start_time.elapsed().as_nanos();
+
+
+
+        SampleResult::new(counts, shots, end_time, rng_seed)
     }
 }
 
@@ -214,15 +223,12 @@ fn sample_single(cum: &[f64], x: f64) -> usize {
     }
 }
 
-fn multinomial_sample(probs: &[f64], shots: usize, seed: Option<u64>) -> Vec<usize> {
+fn multinomial_sample(probs: &[f64], shots: usize, rng_seed: u64) -> Vec<usize> {
     let cum = cumulative_probs(probs);
 
     let mut counts = vec![0usize; probs.len()];
 
-    let mut rng = match seed {
-        Some(s) => StdRng::seed_from_u64(s),
-        None => StdRng::from_os_rng(),
-    };
+    let mut rng = StdRng::seed_from_u64(rng_seed);
 
     for _ in 0..shots {
         let x: f64 = rng.random();

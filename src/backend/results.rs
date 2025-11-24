@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 
 use crate::core::Amplitude;
 
@@ -9,19 +9,16 @@ use crate::core::Amplitude;
 pub struct BackendResult {
     final_state: Vec<Amplitude>,
     pub metrics: ExecutionMetrics,
-    rng_seed: usize
 }
 
 impl BackendResult {
     pub fn new(
         final_state: Vec<Amplitude>,
         metrics: ExecutionMetrics,
-        rng_seed: usize
     ) -> Self {
         Self {
             final_state,
             metrics,
-            rng_seed
         }
     }
 
@@ -48,21 +45,23 @@ impl ExecutionMetrics {
 /// The sample result is returned on sampling a circuit
 #[derive(Debug)]
 pub struct SampleResult {
-    counts: HashMap<String, usize>,
+    counts: BTreeMap<String, usize>,
     pub shots: usize,
-    pub execution_time: u128
+    pub execution_time: u128,
+    rng_seed: u64,
 }
 
 impl SampleResult {
-    pub fn new(counts: HashMap<String, usize>, shots: usize, execution_time: u128) -> Self {
+    pub fn new(counts: BTreeMap<String, usize>, shots: usize, execution_time: u128, rng_seed: u64) -> Self {
         Self {
             counts,
             shots,
-            execution_time
+            execution_time,
+            rng_seed,
         }
     }
 
-    pub fn counts(&self) -> &HashMap<String, usize> {
+    pub fn counts(&self) -> &BTreeMap<String, usize> {
         &self.counts
     }
 }
