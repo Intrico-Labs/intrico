@@ -211,6 +211,7 @@ impl MeasurementOp {
 
 #[derive(Debug)]
 pub struct CompiledCircuitMetadata {
+    #[allow(dead_code)]
     depth: Option<usize>
 }
 

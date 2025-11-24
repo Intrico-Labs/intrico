@@ -1,4 +1,4 @@
-use std::collections::{HashMap, BTreeMap};
+use std::collections::BTreeMap;
 
 use crate::core::Amplitude;
 
@@ -48,6 +48,7 @@ pub struct SampleResult {
     counts: BTreeMap<String, usize>,
     pub shots: usize,
     pub execution_time: u128,
+    #[allow(dead_code)]
     rng_seed: u64,
 }
 
