@@ -176,7 +176,10 @@ impl QuantumBackend for StatevectorBackend {
 }
 
 impl StatevectorBackend {
-    pub fn sample(&self, state: &[Complex<f64>], num_qubits: usize, shots: usize, seed: Option<u64>) -> SampleResult {
+    pub fn sample(&self, state: &[Complex<f64>], shots: usize, seed: Option<u64>) -> SampleResult {
+
+        let num_qubits = state.len().ilog2();
+
         let start_time = Instant::now();
 
         let probs = compute_probabilities(state);
@@ -192,7 +195,7 @@ impl StatevectorBackend {
         let mut counts = BTreeMap::new();
         for (basis, c) in raw_counts.into_iter().enumerate() {
             if c == 0 { continue; }
-            let bits = extract_bitstring(basis, num_qubits);
+            let bits = extract_bitstring(basis, num_qubits as usize);
             counts.insert(bits, c);
         }
 
