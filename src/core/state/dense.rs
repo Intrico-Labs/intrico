@@ -1,17 +1,20 @@
-//! The StateVectorDense implementation
-//! The amplitudes of the quantum state are stored in a single contiguous memory buffer.
+//! Dense statevector implementation.
+//!
+//! This module provides a dense statevector representation where amplitudes
+//! are stored in a contiguous memory buffer.
 
 use crate::core::{Amplitude, state::QuantumState};
 
-// The dense statevector struct
-pub struct StateVectorDense {
+/// Dense statevector representation.
+///
+/// Stores all 2^n quantum state amplitudes in contiguous memory.
+pub struct StatevectorDense {
     amplitudes: Vec<Amplitude>,
     num_qubits: usize,
     len: usize,
 }
 
-// QuantumState trait implementation
-impl QuantumState for StateVectorDense {
+impl QuantumState for StatevectorDense {
     fn num_qubits(&self) -> usize {
         self.num_qubits
     }
@@ -29,9 +32,8 @@ impl QuantumState for StateVectorDense {
     }
 }
 
-// StateVector implementations
-impl StateVectorDense {
-    // Create a new statevector
+impl StatevectorDense {
+    /// Creates a new dense statevector initialized to |0...0⟩.
     pub fn new(num_qubits: usize) -> Self {
         let len = 1<<num_qubits;
         let mut amplitudes = vec![Amplitude::new(0.0, 0.0); len];

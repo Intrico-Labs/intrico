@@ -1,9 +1,17 @@
+//! Sequential circuit implementation.
+//!
+//! This module provides the sequential circuit type where gates are executed
+//! in linear order with automatic layer assignment.
+
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use smallvec::SmallVec;
 
 use crate::{core::{QuantumGate, circuit::{GateOp, QuantumCircuit}}, ir::{CircuitIR, SequentialIR}};
 
+/// Sequential quantum circuit.
+///
+/// Executes gates in linear order with automatic depth tracking.
 pub struct SequentialCircuit {
     num_qubits: usize,
     operations: Vec<GateOp>,
@@ -46,15 +54,13 @@ impl QuantumCircuit for SequentialCircuit {
     }
 
     fn to_ir(&self) -> CircuitIR {
-        // TODO: validate ops before building IR
-
         let ir = SequentialIR::new(self.num_qubits, self.operations.clone());
         CircuitIR::Sequential(ir)
     }
 }
 
 impl SequentialCircuit {
-    // new circuit
+    /// Creates a new sequential circuit.
     pub fn new(num_qubits: usize) -> Self {
         Self {
             num_qubits,
@@ -64,13 +70,15 @@ impl SequentialCircuit {
         }
     }
 
+    /// Returns an iterator over gate operations.
     pub fn iter_ops(&self) -> impl Iterator<Item=&GateOp> {
         self.operations.iter()
     }
 
+    /// Returns the number of gates in the circuit.
     pub fn num_gates(&self) -> usize {
         self.operations.len()
-    }   
+    }
 }
 
 // Builder APIs

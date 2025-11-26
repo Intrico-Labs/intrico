@@ -1,3 +1,12 @@
+//! Quantum gate definitions.
+//!
+//! This module defines all quantum gate types supported by Intrico,
+//! including standard gates, parameterized rotations, and custom gates.
+
+/// Quantum gate enumeration.
+///
+/// Represents all supported quantum gates including single-qubit, two-qubit,
+/// parameterized, and custom gates.
 #[derive(Clone, Debug)]
 pub enum QuantumGate {
     // single qubit gates
@@ -25,6 +34,7 @@ pub enum QuantumGate {
 }
 
 impl QuantumGate {
+    /// Returns the number of qubits this gate operates on.
     pub fn arity(&self) -> usize {
         match self {
             QuantumGate::CX | QuantumGate::CZ => 2,
