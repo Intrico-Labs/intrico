@@ -1,19 +1,29 @@
+//! Backend trait definition.
+//!
+//! This module defines the core trait that all quantum backends must implement,
+//! providing a standard interface for circuit transpilation, preparation, and execution.
+
 use std::sync::Arc;
 
 use crate::{QuantumCircuit, SequentialCircuit, backend::{BackendResult, CompiledCircuit, ExecutionContext}, ir::CircuitIR};
 
-/// The intrico backend trait that all backends must implement
+/// Core trait for quantum circuit execution backends.
+///
+/// All backends must implement this trait to provide circuit transpilation,
+/// preparation, and execution capabilities.
 pub trait QuantumBackend {
-    /// Transpile the circuit
+    /// Transpiles a circuit IR into a backend-specific compiled circuit.
     fn transpile(&self, circuit_ir: &CircuitIR) -> CompiledCircuit;
 
-    /// Fit the circuit ir in the backend
+    /// Prepares an execution context with initialized state and precomputed gates.
     fn prepare(&self, compiled: Arc<CompiledCircuit>, rnd_seed: Option<usize>) -> ExecutionContext;
 
-    /// Execute the job
+    /// Executes the circuit and returns the result.
     fn execute(&self, execution_ctx: &mut ExecutionContext) -> BackendResult;
 
-    /// Run the circuit
+    /// High-level method that runs a circuit through the full pipeline.
+    ///
+    /// Converts the circuit to IR, transpiles, prepares, and executes in sequence.
     fn run(&self, circuit: SequentialCircuit) -> BackendResult {
         let ir = circuit.to_ir();
         let compiled = self.transpile(&ir);

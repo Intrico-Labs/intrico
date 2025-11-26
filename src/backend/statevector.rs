@@ -1,3 +1,8 @@
+//! Statevector backend implementation.
+//!
+//! This module implements the statevector simulation backend, which represents
+//! quantum states as dense complex vectors and applies gates via matrix operations.
+
 use std::{cmp::{max, min}, collections::{HashMap, BTreeMap}, sync::Arc, time::Instant};
 
 use rand::{Rng, SeedableRng, rngs::StdRng};
@@ -6,11 +11,15 @@ use rusticle::Complex;
 use crate::{
     backend::{
         BackendConfig, BackendResult, CompiledCircuit, ExecutableGate, ExecutionContext, MeasurementOp, NativeOp, QuantumBackend, SampleResult, compiled_circuit::CompiledCircuitMetadata, contexts::PrecomputedGate, kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3, KernelDef}, results::ExecutionMetrics
-    }, 
-    core::{Amplitude, QuantumGate}, 
+    },
+    core::{Amplitude, QuantumGate},
     ir::CircuitIR
 };
 
+/// Statevector quantum simulation backend.
+///
+/// Simulates quantum circuits using dense statevector representation with
+/// kernel-based evaluation for parameterized gates.
 pub struct StatevectorBackend {
     config: BackendConfig,
     kernels: HashMap<usize, KernelDef>,
@@ -176,6 +185,10 @@ impl QuantumBackend for StatevectorBackend {
 }
 
 impl StatevectorBackend {
+    /// Performs measurement sampling on a quantum state.
+    ///
+    /// Samples from the probability distribution defined by the statevector,
+    /// returning measurement counts for each observed bitstring.
     pub fn sample(&self, state: &[Complex<f64>], shots: usize, seed: Option<u64>) -> SampleResult {
 
         let num_qubits = state.len().ilog2();
@@ -338,6 +351,9 @@ fn apply_two_qubit_gate(matrix: &[Complex<f64>; 16], state: &mut [Amplitude], co
 
 
 impl StatevectorBackend {
+    /// Creates a new statevector backend with kernel registry.
+    ///
+    /// Initializes the backend with evaluation kernels for parameterized gates (RX, RY, RZ, U3).
     pub fn new(config: BackendConfig) -> Self {
 
         let mut kernels: HashMap<usize, KernelDef> = HashMap::new();

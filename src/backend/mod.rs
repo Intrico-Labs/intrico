@@ -5,7 +5,7 @@
 //!
 //! | Backend | Description | State Representation |
 //! |---------|-------------|----------------------|
-//! | **StatevectorBackend** | Dense statevector simulation with kernel-based parameterized gates | Dense vector (2^n amplitudes) |
+//! | **StatevectorBackend** | Dense statevector simulation | Dense vector (2^n amplitudes) |
 //! 
 
 pub mod traits;
