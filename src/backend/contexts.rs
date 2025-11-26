@@ -41,7 +41,7 @@ impl ExecutionContext {
     /// Creates a new execution context with initialized statevector.
     ///
     /// Initializes the statevector to |00...0⟩ state.
-    pub fn new(compiled_circuit: Arc<CompiledCircuit>, rng_seed: Option<usize>) -> Self {
+    pub(crate) fn new(compiled_circuit: Arc<CompiledCircuit>, rng_seed: Option<usize>) -> Self {
 
         let dimension = 1 << compiled_circuit.num_qubits();
 

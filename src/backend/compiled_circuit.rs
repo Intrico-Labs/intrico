@@ -50,7 +50,7 @@ impl CompiledCircuit {
     /// * `creg_size` - Size of the classical register
     /// * `creg_mapping` - Mapping from classical register to qubit indices
     /// * `metadata` - Circuit compilation metadata
-    pub fn new(
+    pub(crate) fn new(
         num_qubits: usize,
         optimization_level: u8,
         ops: Vec<NativeOp>,

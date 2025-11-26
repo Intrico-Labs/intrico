@@ -61,6 +61,8 @@ impl QuantumCircuit for SequentialCircuit {
 
 impl SequentialCircuit {
     /// Creates a new sequential circuit.
+    /// # Arguments:
+    /// * `num_qubits` - Number of qubits in the circuit
     pub fn new(num_qubits: usize) -> Self {
         Self {
             num_qubits,

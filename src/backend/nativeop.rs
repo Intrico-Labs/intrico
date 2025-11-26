@@ -36,7 +36,7 @@ impl NativeOp {
     /// Converts a high-level quantum gate into a native operation.
     ///
     /// Maps gate types to their executable representations with matrices or kernel IDs.
-    pub fn new(gate: &QuantumGate, controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
+    pub(crate) fn new(gate: &QuantumGate, controls: SmallVec<[usize; 2]>, targets: SmallVec<[usize; 2]>) -> Self {
         use std::f64::consts::FRAC_1_SQRT_2;
 
         let exec_gate = match &gate {

@@ -18,8 +18,7 @@ use crate::{
 
 /// Statevector quantum simulation backend.
 ///
-/// Simulates quantum circuits using dense statevector representation with
-/// kernel-based evaluation for parameterized gates.
+/// Simulates quantum circuits using dense statevector representation
 pub struct StatevectorBackend {
     config: BackendConfig,
     kernels: HashMap<usize, KernelDef>,
@@ -353,7 +352,8 @@ fn apply_two_qubit_gate(matrix: &[Complex<f64>; 16], state: &mut [Amplitude], co
 impl StatevectorBackend {
     /// Creates a new statevector backend with kernel registry.
     ///
-    /// Initializes the backend with evaluation kernels for parameterized gates (RX, RY, RZ, U3).
+    /// # Arguments
+    /// * `config` - The backend configuration to be used for execution
     pub fn new(config: BackendConfig) -> Self {
 
         let mut kernels: HashMap<usize, KernelDef> = HashMap::new();

@@ -26,7 +26,7 @@ pub struct GateMetadata {
 
 impl GateOp {
     /// Creates a new gate operation.
-    pub fn new(gate: QuantumGate, targets: &[usize], controls: &[usize]) -> Self {
+    pub(crate) fn new(gate: QuantumGate, targets: &[usize], controls: &[usize]) -> Self {
         GateOp {
             gate,
             targets: SmallVec::from_slice(targets),

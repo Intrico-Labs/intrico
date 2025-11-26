@@ -18,7 +18,7 @@ pub struct SequentialIR {
 
 impl SequentialIR {
     /// Creates a new sequential IR.
-    pub fn new(num_qubits: usize, ops: Vec<GateOp>) -> Self {
+    pub(crate) fn new(num_qubits: usize, ops: Vec<GateOp>) -> Self {
         Self {
             num_qubits,
             ops,

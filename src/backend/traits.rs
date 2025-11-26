@@ -24,6 +24,9 @@ pub trait QuantumBackend {
     /// High-level method that runs a circuit through the full pipeline.
     ///
     /// Converts the circuit to IR, transpiles, prepares, and executes in sequence.
+    /// 
+    /// # Arguments
+    /// * `circuit` - Quantum circuit you want to run.
     fn run(&self, circuit: SequentialCircuit) -> BackendResult {
         let ir = circuit.to_ir();
         let compiled = self.transpile(&ir);

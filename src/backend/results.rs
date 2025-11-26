@@ -18,7 +18,7 @@ pub struct BackendResult {
 
 impl BackendResult {
     /// Creates a new backend result.
-    pub fn new(
+    pub(crate) fn new(
         final_state: Vec<Amplitude>,
         metrics: ExecutionMetrics,
     ) -> Self {
