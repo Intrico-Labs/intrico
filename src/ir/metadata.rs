@@ -1,5 +1,13 @@
+//! Circuit IR metadata.
+//!
+//! This module defines metadata attached to circuit IR instances,
+//! including version, name, depth, tags, and creation timestamp.
+
 use chrono::{DateTime, Utc};
 
+/// Metadata associated with circuit IR.
+///
+/// Contains circuit information like version, name, depth, and creation time.
 #[derive(Debug)]
 pub struct IRMetadata {
     pub version: String,
