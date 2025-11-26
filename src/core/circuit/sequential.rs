@@ -83,7 +83,10 @@ impl SequentialCircuit {
 
 // Builder APIs
 impl SequentialCircuit {
-    // Standard single-qubit gates
+    /// Applies Pauli-X gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn x(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -93,6 +96,10 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies Pauli-Y gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn y(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -102,6 +109,10 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies Pauli-Z gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn z(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -111,6 +122,10 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies Hadamard gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn h(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -120,6 +135,10 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies S gate (phase) to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn s(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -129,6 +148,10 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies T gate (π/8) to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
     pub fn t(&mut self, target: usize) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -138,7 +161,11 @@ impl SequentialCircuit {
         self
     }
 
-    // Parameterized rotation gates
+    /// Applies RX rotation gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
+    /// * `theta` - Rotation angle in radians
     pub fn rx(&mut self, target: usize, theta: f64) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -148,6 +175,11 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies RY rotation gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
+    /// * `theta` - Rotation angle in radians
     pub fn ry(&mut self, target: usize, theta: f64) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -157,6 +189,11 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies RZ rotation gate to target qubit.
+    ///
+    /// # Arguments
+    /// * `target` - Target qubit index
+    /// * `theta` - Rotation angle in radians
     pub fn rz(&mut self, target: usize, theta: f64) -> &mut Self {
         if target > self.num_qubits-1 {
             panic!("Target qubit out of index (The circuit has only {} qubits)", self.num_qubits);
@@ -166,7 +203,11 @@ impl SequentialCircuit {
         self
     }
 
-    // Two-qubit controlled gates
+    /// Applies controlled-X (CNOT) gate.
+    ///
+    /// # Arguments
+    /// * `control` - Control qubit index
+    /// * `target` - Target qubit index
     pub fn cx(&mut self, control: usize, target: usize) -> &mut Self {
         if control > self.num_qubits-1 || target > self.num_qubits-1 {
             panic!("Qubit index out of bounds (The circuit has only {} qubits)", self.num_qubits);
@@ -179,6 +220,11 @@ impl SequentialCircuit {
         self
     }
 
+    /// Applies controlled-Z gate.
+    ///
+    /// # Arguments
+    /// * `control` - Control qubit index
+    /// * `target` - Target qubit index
     pub fn cz(&mut self, control: usize, target: usize) -> &mut Self {
         if control > self.num_qubits-1 || target > self.num_qubits-1 {
             panic!("Qubit index out of bounds (The circuit has only {} qubits)", self.num_qubits);
