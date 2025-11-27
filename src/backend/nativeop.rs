@@ -5,7 +5,7 @@
 
 use smallvec::SmallVec;
 
-use crate::{backend::kernels::{KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3}, core::{Amplitude, QuantumGate}};
+use crate::{backend::kernels::{KERNEL_CP, KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3}, core::{Amplitude, QuantumGate}};
 
 /// Low-level gate operation ready for backend execution.
 ///
@@ -135,6 +135,10 @@ impl NativeOp {
                     Amplitude::new(-1.0, 0.0)
                 ],
                 arity: 2
+            },
+            QuantumGate::CP { theta } => ExecutableGate::ParamUnitary { 
+                kernel_id: KERNEL_CP, 
+                params: vec![*theta]
             },
             QuantumGate::RX { theta } => ExecutableGate::ParamUnitary {
                 kernel_id: KERNEL_RX,

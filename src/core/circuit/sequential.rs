@@ -238,6 +238,24 @@ impl SequentialCircuit {
         self.add_op(op);
         self
     }
+
+    /// Applies controlled-phase gate
+    /// 
+    /// # Arguments
+    /// * `theta` - Phase
+    /// * `control` - Control qubit index
+    /// * `target` - Target qubit index
+    pub fn cp(&mut self, theta: f64, control: usize, target: usize) -> &mut Self {
+        if control > self.num_qubits-1 || target > self.num_qubits-1 {
+            panic!("Qubit index out of bounds (The circuit has only {} qubits)", self.num_qubits);
+        }
+        if control == target {
+            panic!("Control and target qubits must be different");
+        }
+        let op = GateOp::new(QuantumGate::cp(theta), &[target], &[control]);
+        self.add_op(op);
+        self
+    }
 }
 
 

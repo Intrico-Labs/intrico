@@ -10,7 +10,7 @@ use rusticle::Complex;
 
 use crate::{
     backend::{
-        BackendConfig, BackendResult, CompiledCircuit, ExecutableGate, ExecutionContext, MeasurementOp, NativeOp, QuantumBackend, SampleResult, compiled_circuit::CompiledCircuitMetadata, contexts::PrecomputedGate, kernels::{KERNEL_CP, KERNEL_RX, KERNEL_RY, KERNEL_RZ, KERNEL_U3, KernelDef, kernel_map}, results::ExecutionMetrics
+        BackendConfig, BackendResult, CompiledCircuit, ExecutableGate, ExecutionContext, MeasurementOp, NativeOp, QuantumBackend, SampleResult, compiled_circuit::CompiledCircuitMetadata, contexts::PrecomputedGate, kernels::{KernelDef, kernel_map}, results::ExecutionMetrics
     },
     core::{Amplitude, QuantumGate},
     ir::CircuitIR
