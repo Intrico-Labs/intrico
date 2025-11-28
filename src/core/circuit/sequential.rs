@@ -81,6 +81,11 @@ impl SequentialCircuit {
     pub fn num_gates(&self) -> usize {
         self.operations.len()
     }
+
+    /// Returns the inverse of a circuit
+    pub fn inverse(&mut self) {
+        self.operations.reverse();
+    }
 }
 
 // Builder APIs
