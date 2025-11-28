@@ -1,12 +1,15 @@
 use intrico::SequentialCircuit;
 use intrico::backend::{BackendConfig, QuantumBackend, StatevectorBackend};
+use intrico::library::QFT;
 
 fn main() {
-    // Initializing the circuit
-    let mut qc = SequentialCircuit::new(2);
+    // Initializing the circuit to |110⟩ state
+    let mut qc = SequentialCircuit::new(3);
+    qc.x(2).x(1);
 
-    // Adding gates
-    qc.h(0).cx(0, 1);
+    // Appending the QFT circuit
+    let qft = QFT::new(3);
+    qc.append(&qft);
 
     // Initializing the backend
     let backend = StatevectorBackend::new(
@@ -25,4 +28,5 @@ fn main() {
 
     // Printing the sample result
     println!("Sample Result: {:?}", sample_result);
+
 }
