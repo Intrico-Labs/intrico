@@ -32,3 +32,4 @@ cargo add intrico
 | Example | Description | Link |
 |---------|-------------|------|
 | Bell Pair | Create and measure an entangled Bell state | [bell_pair.rs](examples/bell_pair.rs) |
+| Quantum Fourier Transform | Prepare and evolve a state using QFT | [qft.rs](examples/qft.rs) |
