@@ -86,6 +86,13 @@ impl SequentialCircuit {
     pub fn inverse(&mut self) {
         self.operations.reverse();
     }
+
+    pub fn append(&mut self, circuit: &SequentialCircuit) -> &mut Self {
+        for op in circuit.iter_ops() {
+            self.add_op(op.clone());
+        }
+        self
+    }
 }
 
 // Builder APIs
