@@ -21,6 +21,7 @@ pub enum QuantumGate {
     CX,
     CZ,
     CP {theta: f64},
+    Swap,
 
     // parameterized gates
     RX {theta: f64},
@@ -80,6 +81,10 @@ impl QuantumGate {
 
     pub fn cp(theta: f64) -> Self {
         QuantumGate::CP { theta }
+    }
+
+    pub fn swap() -> Self {
+        QuantumGate::Swap
     }
 
     // parameterized gate builders

@@ -136,6 +136,30 @@ impl NativeOp {
                 ],
                 arity: 2
             },
+            QuantumGate::Swap => ExecutableGate::Unitary { 
+                matrix: vec![
+                    Amplitude::new(1.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(1.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(1.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(0.0, 0.0),
+                    Amplitude::new(1.0, 0.0)
+                ], 
+                arity: 2 
+            },
             QuantumGate::CP { theta } => ExecutableGate::ParamUnitary { 
                 kernel_id: KERNEL_CP, 
                 params: vec![*theta]

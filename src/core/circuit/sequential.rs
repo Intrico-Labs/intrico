@@ -256,6 +256,18 @@ impl SequentialCircuit {
         self.add_op(op);
         self
     }
+
+    pub fn swap(&mut self, qubit1: usize, qubit2: usize) -> &mut Self {
+        if qubit1 > self.num_qubits-1 || qubit2 > self.num_qubits-1 {
+            panic!("Qubit index out of bounds (The circuit has only {} qubits)", self.num_qubits);
+        }
+        if qubit1 == qubit2 {
+            panic!("Cannot swap the same qubit. qubit1 and qubit2 indices should be different");
+        }
+        let op = GateOp::new(QuantumGate::Swap, &[qubit1], &[qubit2]);
+        self.add_op(op);
+        self
+    }
 }
 
 
