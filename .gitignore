@@ -1,0 +1,12 @@
+/target
+
+.claude
+.DS_Store
+
+t_*.rs
+
+# Added by cargo
+#
+# already existing elements were commented out
+
+#/target
