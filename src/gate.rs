@@ -5,6 +5,7 @@ use smallvec::smallvec;
 use crate::Complex;
 
 /// Quantum Gate implementation
+#[derive(Debug)]
 pub struct QuantumGate {
     matrix: Vec<Complex>,
     arity: usize,
@@ -16,7 +17,6 @@ impl QuantumGate {
     pub fn new(matrix: Vec<Complex>, arity: usize, name: String) -> Self {
         Self { matrix, arity, name }
     }
-
 }
 
 /// Getters
