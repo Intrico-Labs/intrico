@@ -67,4 +67,19 @@ impl QuantumGate {
             name: "H".to_string(),
         }
     }
+
+    /// Controlled-X Gate (CNOT)
+    pub fn cx() -> Self {
+        let matrix = vec![
+            smallvec![1.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0],
+            smallvec![0.0, 0.0], smallvec![1.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0],
+            smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![1.0, 0.0],
+            smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![1.0, 0.0], smallvec![0.0, 0.0],
+        ];
+        Self {
+            matrix,
+            arity: 2,
+            name: "CX".to_string(),
+        }
+    }
 }
