@@ -1,7 +1,4 @@
 use std::f32::consts::FRAC_1_SQRT_2;
-
-use smallvec::smallvec;
-
 use crate::Complex;
 
 /// Quantum Gate implementation
@@ -40,10 +37,10 @@ impl QuantumGate {
     /// Pauli X Gate
     pub fn x() -> Self {
         let matrix = vec![
-            smallvec![0.0, 0.0],
-            smallvec![1.0, 0.0],
-            smallvec![1.0, 0.0],
-            smallvec![0.0, 0.0],
+            Complex::new(0.0, 0.0),
+            Complex::new(1.0, 0.0),
+            Complex::new(1.0, 0.0),
+            Complex::new(0.0, 0.0),
         ];
         Self {
             matrix,
@@ -56,10 +53,10 @@ impl QuantumGate {
     pub fn h() -> Self {
         let amp = FRAC_1_SQRT_2 as f64;
         let matrix = vec![
-            smallvec![amp, 0.0],
-            smallvec![amp, 0.0],
-            smallvec![amp, 0.0],
-            smallvec![-amp, 0.0],
+            Complex::new(amp, 0.0),
+            Complex::new(amp, 0.0),
+            Complex::new(amp, 0.0),
+            Complex::new(-amp, 0.0),
         ];
         Self {
             matrix,
@@ -71,10 +68,10 @@ impl QuantumGate {
     /// Controlled-X Gate (CNOT)
     pub fn cx() -> Self {
         let matrix = vec![
-            smallvec![1.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0],
-            smallvec![0.0, 0.0], smallvec![1.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0],
-            smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![1.0, 0.0],
-            smallvec![0.0, 0.0], smallvec![0.0, 0.0], smallvec![1.0, 0.0], smallvec![0.0, 0.0],
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
         ];
         Self {
             matrix,

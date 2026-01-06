@@ -1,5 +1,3 @@
-use smallvec::smallvec;
-
 use crate::Complex;
 
 /// Quantum State representation
@@ -12,11 +10,19 @@ impl QuantumState {
         let dim = 1 << num_qubits;
 
         // init to 00..00 state
-        let mut sv = vec![smallvec![0.0, 0.0]; dim];
-        sv[0] = smallvec![1.0, 0.0];
+        let mut sv = vec![Complex::new(0.0, 0.0); dim];
+        sv[0] = Complex::new(1.0, 0.0);
 
         Self {
             statevector: sv
         }
+    }
+
+    pub fn statevector(&self) -> &Vec<Complex> {
+        &self.statevector
+    }
+    
+    pub fn statevector_mut(&mut self) -> &mut Vec<Complex> {
+        &mut self.statevector
     }
 }

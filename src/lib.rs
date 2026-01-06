@@ -1,7 +1,6 @@
-use smallvec::SmallVec;
-
+pub mod complex;
 pub mod state;
 pub mod gate;
 pub mod circuit;
 
-pub type Complex = SmallVec<[f64; 2]>;
+pub use complex::Complex;
