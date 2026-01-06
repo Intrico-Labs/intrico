@@ -1,4 +1,6 @@
-use crate::gate::QuantumGate;
+use std::cmp::{max, min};
+
+use crate::{Complex, gate::QuantumGate, state::QuantumState};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -66,6 +68,28 @@ impl QuantumCircuit {
         self
     }
 
+    /// Execution Engine
+    /// This basically holds all the logic for executing a quantum circuit on a given quantum state
+    
+    pub fn execute(&self, state: &mut QuantumState) {
+        let operations = self.gates();
+        let dim = 1 << self.num_qubits; // State vector dimension = 2^num_qubits
+
+        for op in operations {
+            let gate = &op.gate;
+
+            match gate.arity() {
+                1 => {
+                    apply_single_qubit_gate(gate.matrix(), state.statevector_mut(), op.targets[0], dim);
+                }
+                2 => {
+                    apply_two_qubit_gate(gate.matrix(), state.statevector_mut(), op.targets[0], op.targets[1], dim);
+                }
+                _ => {}
+            }
+        }
+    }
+
     /// Getters
     pub fn num_qubits(&self) -> usize {
         self.num_qubits
@@ -77,5 +101,81 @@ impl QuantumCircuit {
 
     pub fn frontier(&self) -> &Vec<Option<usize>> {
         &self.frontier
+    }
+}
+
+/// Helper functions
+/// These are essential helper functions used in above implementations
+
+fn apply_single_qubit_gate(matrix: &[Complex], state: &mut [Complex], target: usize, dim: usize) {
+    let stride = 1 << target;
+    let period = stride << 1;
+    
+    let mut idx = 0;
+    while idx < dim {
+        let limit = idx + stride;
+        let mut i0 = idx;
+
+        while i0 < limit {
+            let i1 = i0 + stride;
+            let a0 = state[i0].clone();
+            let a1 = state[i1].clone();
+
+            state[i0] = &matrix[0] * &a0 + &matrix[1] * &a1;
+            state[i1] = &matrix[2] * &a0 + &matrix[3] * &a1;
+
+            i0 += 1;
+        }
+        idx += period;
+    }
+}
+
+fn apply_two_qubit_gate(matrix: &[Complex], state: &mut [Complex], control: usize, target: usize, dim: usize) {
+
+    let a = min(control, target);
+    let b = max(control, target);
+
+    let bit_t = 1 << target;
+    let bit_c = 1 << control;
+
+
+    let specs = dim/4;
+
+    for k in 0..specs {
+        let mask1 = (1 << a) - 1;
+        let temp = ((k & !mask1) << 1) | (k & mask1);
+
+        let mask2 = (1 << b) - 1;
+        let base = ((temp & !mask2) << 1) | (temp & mask2);
+
+        let i00 = base; // 00 state
+        let i01 = base | bit_t; // 01 state
+        let i10 = base | bit_c; // 10 state
+        let i11 = base | bit_c | bit_t; // 11 state
+
+        // caching current values
+        let (a0, a1) = (state[i00], state[i01]);
+        let (a2, a3) = (state[i10], state[i11]);
+
+        // multiplying matrix
+        state[i00] = matrix[0] * a0 +
+            matrix[1] * a1 +
+            matrix[2] * a2 +
+            matrix[3] * a3;
+
+        state[i01] = matrix[4] * a0 +
+            matrix[5] * a1 +
+            matrix[6] * a2 +
+            matrix[7] * a3;
+
+        state[i10] = matrix[8] * a0 +
+            matrix[9] * a1 +
+            matrix[10] * a2 +
+            matrix[11] * a3;
+
+        state[i11] = matrix[12] * a0 +
+            matrix[13] * a1 +
+            matrix[14] * a2 +
+            matrix[15] * a3;
     }
 }
