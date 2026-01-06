@@ -1,6 +1,6 @@
-use smallvec::{SmallVec, smallvec};
+use smallvec::smallvec;
 
-type Complex = SmallVec<[f64; 2]>;
+use crate::Complex;
 
 /// Quantum State representation
 pub struct QuantumState {
@@ -14,7 +14,7 @@ impl QuantumState {
         // init to 00..00 state
         let mut sv = vec![smallvec![0.0, 0.0]; dim];
         sv[0] = smallvec![1.0, 0.0];
-        
+
         Self {
             statevector: sv
         }
