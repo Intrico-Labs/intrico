@@ -71,7 +71,7 @@ impl QuantumCircuit {
     /// Execution Engine
     /// This basically holds all the logic for executing a quantum circuit on a given quantum state
     
-    pub fn execute(&self, state: &mut QuantumState) {
+    pub fn execute_on_state(&self, state: &mut QuantumState) {
         let operations = self.gates();
         let dim = 1 << self.num_qubits; // State vector dimension = 2^num_qubits
 
@@ -88,6 +88,11 @@ impl QuantumCircuit {
                 _ => {}
             }
         }
+    }
+
+    pub fn execute(&self) {
+        let mut state = QuantumState::new(self.num_qubits);
+        self.execute_on_state(&mut state);
     }
 
     /// Getters
