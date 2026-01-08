@@ -102,6 +102,67 @@ impl QuantumCircuit {
     pub fn frontier(&self) -> &Vec<Option<usize>> {
         &self.frontier
     }
+
+    /// Builder functions
+    /// These are helper functions that help build gates into circuits easily
+    pub fn x(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::x());
+        self
+    }
+
+    pub fn y(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::y());
+        self
+    }
+
+    pub fn z(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::z());
+        self
+    }
+
+    pub fn s(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::s());
+        self
+    }
+
+    pub fn t(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::t());
+        self
+    }
+
+    pub fn h(&mut self, target: usize) -> &mut Self {
+        if target > self.num_qubits-1 {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::h());
+        self
+    }
+
+    pub fn cx(&mut self, control: usize, target: usize) -> &mut Self {
+        if control > self.num_qubits-1 || target > self.num_qubits-1 {
+            panic!("Control or target qubit index out of bounds.")
+        }
+        if control == target {
+            panic!("Control and target qubits must be different.")
+        }
+        self.add_gate(vec![control, target], QuantumGate::cx());
+        self
+    }
 }
 
 /// Helper functions
