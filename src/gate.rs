@@ -1,16 +1,26 @@
+//! Quantum Gate representation
+//! 
+//! This module contains the quantum gate definition that stores the gate matrices
+//! and the metadata required for operating on circuits.
+//! 
+
 use std::f64::consts::{FRAC_1_SQRT_2, FRAC_PI_4};
 use crate::Complex;
 
-/// Quantum Gate implementation
+/// Quantum Gate representation
 #[derive(Debug)]
 pub struct QuantumGate {
+    /// Gate matrix
     matrix: Vec<Complex>,
+    /// Number of qubits the gate operates on
     arity: usize,
+    /// Name of the quantum gate
     name: String
 }
 
 /// Initializers
 impl QuantumGate {
+    /// Initialises a new quantum gate
     pub fn new(matrix: Vec<Complex>, arity: usize, name: String) -> Self {
         Self { matrix, arity, name }
     }
@@ -32,7 +42,7 @@ impl QuantumGate {
 }
 
 /// Standard Gates
-/// This is a set of commonly used gates like the Clifford Gates
+/// This is a set of commonly used gates
 impl QuantumGate {
     /// Pauli X Gate
     pub fn x() -> Self {

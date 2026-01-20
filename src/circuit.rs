@@ -1,3 +1,11 @@
+//! Quantum Circuit representation
+//! 
+//! This module contains the quantum circuit definitions and the relevant
+//! implementations for executing a quantum circuit on a specific quantum state
+//! 
+//! The architecture of the quantum circuit that is built is purely graphical -
+//! specifically a DAG to keep it memory efficient and support parallelism
+
 use std::cmp::{max, min};
 
 use crate::{Complex, gate::QuantumGate, state::QuantumState};

@@ -1,11 +1,20 @@
+//! Quantum Statevector representation
+//! 
+//! This module provides a dense statevector representation where
+//! amplitudes are stored in a contiguous memory buffer
+
 use crate::Complex;
 
-/// Quantum State representation
+
+/// Dense statevector representation
+/// 
+/// Stores all 2^n quantum state amplitudes in contiguous memory.
 pub struct QuantumState {
     pub statevector: Vec<Complex>
 }
 
 impl QuantumState {
+    /// Creates a new statevector and initialises to |0...0⟩
     pub fn new(num_qubits: usize) -> Self {
         let dim = 1 << num_qubits;
 
@@ -18,10 +27,13 @@ impl QuantumState {
         }
     }
 
+    /// Getter fn for statevector 
+    /// (Use `statevector_mut()` for mutable instance)
     pub fn statevector(&self) -> &Vec<Complex> {
         &self.statevector
     }
     
+    /// Getter fn for mutable statevector
     pub fn statevector_mut(&mut self) -> &mut Vec<Complex> {
         &mut self.statevector
     }

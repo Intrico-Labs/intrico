@@ -1,3 +1,10 @@
+//! Complex Module
+//! 
+//! This module contains the type implementation for Complex numbers and also
+//! relevant operations that make life easier.
+//! 
+//! Note: This module is supposed to be abstracted into a separate crate in the future
+
 use std::ops::{Add, Mul};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
