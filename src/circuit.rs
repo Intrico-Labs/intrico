@@ -176,6 +176,17 @@ impl QuantumCircuit {
         self.add_gate(vec![control, target], QuantumGate::cx());
         self
     }
+
+    pub fn cp(&mut self, control: usize, target: usize, theta: f64) -> &mut Self {
+        if control > self.num_qubits-1 || target > self.num_qubits-1 {
+            panic!("Control or target qubit index out of bounds.")
+        }
+        if control == target {
+            panic!("Control and target qubits must be different.")
+        }
+        self.add_gate(vec![control, target], QuantumGate::cp(theta));
+        self
+    }
 }
 
 /// Helper functions

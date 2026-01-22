@@ -150,4 +150,19 @@ impl QuantumGate {
             name: "CX".to_string(),
         }
     }
+
+    /// Controlled Phase Gate
+    pub fn cp(theta: f64) -> Self {
+        let matrix = vec![
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(theta.cos(), theta.sin()),
+        ];
+        Self {
+            matrix,
+            arity: 2,
+            name: "CP".to_string(),
+        }
+    }
 }
