@@ -8,7 +8,7 @@ use std::f64::consts::{FRAC_1_SQRT_2, FRAC_PI_4};
 use crate::Complex;
 
 /// Quantum Gate representation
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct QuantumGate {
     /// Gate matrix
     matrix: Vec<Complex>,

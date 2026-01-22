@@ -76,6 +76,18 @@ impl QuantumCircuit {
         self
     }
 
+    pub fn append(&mut self, circuit: &QuantumCircuit) -> &mut Self {
+        if circuit.num_qubits != self.num_qubits {
+            panic!("Cannot append circuits with different qubit counts.")
+        }
+
+        for node in circuit.gates() {
+            self.add_gate(node.targets.clone(), node.gate.clone());
+        }
+
+        self
+    }
+
     /// Execution Engine
     /// This basically holds all the logic for executing a quantum circuit on a given quantum state
     
