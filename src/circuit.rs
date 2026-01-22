@@ -187,6 +187,17 @@ impl QuantumCircuit {
         self.add_gate(vec![control, target], QuantumGate::cp(theta));
         self
     }
+
+    pub fn swap(&mut self, qubit1: usize, qubit2: usize) -> &mut Self {
+        if qubit1 > self.num_qubits-1 || qubit2 > self.num_qubits-1 {
+            panic!("Qubit index out of bounds.")
+        }
+        if qubit1 == qubit2 {
+            panic!("Qubits must be different.")
+        }
+        self.add_gate(vec![qubit1, qubit2], QuantumGate::swap());
+        self
+    }
 }
 
 /// Helper functions

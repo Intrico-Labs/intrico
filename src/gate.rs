@@ -165,4 +165,19 @@ impl QuantumGate {
             name: "CP".to_string(),
         }
     }
+
+    /// SWAP Gate
+    pub fn swap() -> Self {
+        let matrix = vec![
+            Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(1.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(0.0, 0.0), Complex::new(1.0, 0.0),
+        ];
+        Self {
+            matrix,
+            arity: 2,
+            name: "SWAP".to_string(),
+        }
+    }
 }
