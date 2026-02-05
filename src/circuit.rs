@@ -8,7 +8,9 @@
 
 use std::cmp::{max, min};
 
-use crate::{Complex, gate::QuantumGate, state::QuantumState};
+use rusticle::Complex;
+
+use crate::{gate::QuantumGate, state::QuantumState};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -229,8 +231,8 @@ fn apply_single_qubit_gate(matrix: &[Complex], state: &mut [Complex], target: us
             let a0 = state[i0].clone();
             let a1 = state[i1].clone();
 
-            state[i0] = &matrix[0] * &a0 + &matrix[1] * &a1;
-            state[i1] = &matrix[2] * &a0 + &matrix[3] * &a1;
+            state[i0] = matrix[0] * a0 + matrix[1] * a1;
+            state[i1] = matrix[2] * a0 + matrix[3] * a1;
 
             i0 += 1;
         }

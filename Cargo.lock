@@ -6,8 +6,15 @@ version = 4
 name = "intrico"
 version = "0.1.0"
 dependencies = [
+ "rusticle",
  "smallvec",
 ]
+
+[[package]]
+name = "rusticle"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b23f59b172efc9261982df494aa969babc1aa16d6dafa3328f1661aa28809a19"
 
 [[package]]
 name = "smallvec"

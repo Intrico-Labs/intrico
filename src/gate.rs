@@ -5,7 +5,8 @@
 //! 
 
 use std::f64::consts::{FRAC_1_SQRT_2, FRAC_PI_4};
-use crate::Complex;
+
+use rusticle::Complex;
 
 /// Quantum Gate representation
 #[derive(Debug, Clone)]
