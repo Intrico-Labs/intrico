@@ -12,9 +12,9 @@ dependencies = [
 
 [[package]]
 name = "rusticle"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b23f59b172efc9261982df494aa969babc1aa16d6dafa3328f1661aa28809a19"
+checksum = "dec50ca4de45be597a7d8d216b8e1ebe434e8baeafee23528c6a406f6d19bf02"
 
 [[package]]
 name = "smallvec"

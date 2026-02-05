@@ -3,7 +3,7 @@
 //! This module provides a dense statevector representation where
 //! amplitudes are stored in a contiguous memory buffer
 
-use std::fmt::{Debug, Formatter, Result as FmtResult};
+use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 
 use rusticle::Complex;
 
@@ -37,6 +37,22 @@ impl QuantumState {
     /// Getter fn for mutable statevector
     pub fn statevector_mut(&mut self) -> &mut Vec<Complex> {
         &mut self.statevector
+    }
+}
+
+impl Display for QuantumState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        write!(f, "[ ")?;
+
+        for (i, complex) in self.statevector.iter().enumerate() {
+            if i > 0 {
+                write!(f, ", ")?;
+            }
+
+            write!(f, "{:.prec$}", complex, prec = f.precision().unwrap_or(4))?;
+        }
+
+        write!(f, " ]")
     }
 }
 

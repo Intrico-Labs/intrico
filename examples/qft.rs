@@ -11,9 +11,9 @@ fn main() {
 
     let mut statevec = QuantumState::new(3);
 
-    println!("Statevec before execution: {:?}", statevec.statevector);
+    println!("Statevec before execution: {}", statevec);
 
     qc.execute_on_state(&mut statevec);
 
-    println!("Statevec after execution: {:.4?}", statevec.statevector);
+    println!("Statevec after execution: {:.4}", statevec);
 }
