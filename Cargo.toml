@@ -1,7 +1,15 @@
 [package]
 name = "intrico"
-version = "0.1.0"
+version = "2.0.1"
 edition = "2024"
+description = "High-performance Quantum Computing library to simulate quantum circuits with precision and power."
+authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
+keywords = ["quantum-computing", "quantum-technology", "quantum-sdk", "quantum", "rust"]
+categories = ["development-tools", "science", "simulation"]
+license = "Apache-2.0"
+repository = "https://github.com/Intrico-Labs/intrico"
+readme = "README.md"
+
 
 [dependencies]
 rusticle = "2.0.0"
