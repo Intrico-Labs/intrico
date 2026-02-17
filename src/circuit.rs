@@ -15,7 +15,7 @@ use crate::{gate::QuantumGate, state::QuantumState};
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
     num_qubits: usize,
-    gates: Vec<QuantumNode>,
+    nodes: Vec<QuantumNode>,
     frontier: Vec<Option<usize>>,
 }
 
@@ -30,7 +30,7 @@ impl QuantumCircuit {
     pub fn new(num_qubits: usize) -> Self {
         Self {
             num_qubits,
-            gates: Vec::new(),
+            nodes: Vec::new(),
             frontier: vec![None; num_qubits]
         }
     }
@@ -46,7 +46,7 @@ impl QuantumCircuit {
                 }
 
                 // Updating frontier
-                self.frontier[targets[0]] = Some(self.gates.len());
+                self.frontier[targets[0]] = Some(self.nodes.len());
             }
             2 => {
                 // Finding parents
@@ -59,8 +59,8 @@ impl QuantumCircuit {
                 }
 
                 // Updating frontier
-                self.frontier[ctrl] = Some(self.gates.len());
-                self.frontier[target] = Some(self.gates.len());
+                self.frontier[ctrl] = Some(self.nodes.len());
+                self.frontier[target] = Some(self.nodes.len());
             }
             _ => {
                 panic!("Invalid arity?")
@@ -73,7 +73,7 @@ impl QuantumCircuit {
             parents
         };
 
-        self.gates.push(node);
+        self.nodes.push(node);
 
         self
     }
@@ -83,7 +83,7 @@ impl QuantumCircuit {
             panic!("Cannot append circuits with different qubit counts.")
         }
 
-        for node in circuit.gates() {
+        for node in circuit.nodes() {
             self.add_gate(node.targets.clone(), node.gate.clone());
         }
 
@@ -94,7 +94,7 @@ impl QuantumCircuit {
     /// This basically holds all the logic for executing a quantum circuit on a given quantum state
     
     pub fn execute_on_state(&self, state: &mut QuantumState) {
-        let operations = self.gates();
+        let operations = self.nodes();
         let dim = 1 << self.num_qubits; // State vector dimension = 2^num_qubits
 
         for op in operations {
@@ -122,8 +122,8 @@ impl QuantumCircuit {
         self.num_qubits
     }
 
-    pub fn gates(&self) -> &Vec<QuantumNode> {
-        &self.gates
+    pub fn nodes(&self) -> &Vec<QuantumNode> {
+        &self.nodes
     }
 
     pub fn frontier(&self) -> &Vec<Option<usize>> {
