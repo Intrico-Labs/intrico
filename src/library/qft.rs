@@ -12,8 +12,8 @@ impl QFT {
 
         for i in (0..num_qubits).rev() {
             for k in ((i+1)..num_qubits).rev() {
-                let angle = PI / 2.0_f64.powi((k - i) as i32);
-                qc.cp(k, i, angle);
+                let exp = (2 as u32).pow((k-1) as u32);
+                qc.cp(k, i, PI / exp as f64);
             }
 
             qc.h(i);
