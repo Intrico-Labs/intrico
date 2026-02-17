@@ -38,6 +38,9 @@ impl QuantumCircuit {
     pub fn add_gate(&mut self, targets: Vec<usize>, gate: QuantumGate) -> &mut Self {
         let mut parents: Vec<usize> = vec![];
 
+        // Calculate node id (incremental)
+        let node_id = self.nodes.len();
+
         match gate.arity() {
             1 => {
                 // Finding parents
@@ -46,7 +49,7 @@ impl QuantumCircuit {
                 }
 
                 // Updating frontier
-                self.frontier[targets[0]] = Some(self.nodes.len());
+                self.frontier[targets[0]] = Some(node_id);
             }
             2 => {
                 // Finding parents
@@ -59,8 +62,8 @@ impl QuantumCircuit {
                 }
 
                 // Updating frontier
-                self.frontier[ctrl] = Some(self.nodes.len());
-                self.frontier[target] = Some(self.nodes.len());
+                self.frontier[ctrl] = Some(node_id);
+                self.frontier[target] = Some(node_id);
             }
             _ => {
                 panic!("Invalid arity?")
