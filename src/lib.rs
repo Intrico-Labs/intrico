@@ -8,3 +8,4 @@ pub mod state;
 pub mod gate;
 pub mod circuit;
 pub mod library;
+pub mod creg;
