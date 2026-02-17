@@ -19,13 +19,19 @@ pub struct QuantumCircuit {
     frontier: Vec<Option<usize>>,
 }
 
-/// Quantum Node - represents a node in the graph which holds the QuantumGate
+/// Quantum Node - represents a node in the graph which holds a quantum operation
 pub struct QuantumNode {
     pub node_id: usize,
-    pub gate: QuantumGate,
-    pub targets: Vec<usize>,
+    pub operation: Operation,
     pub parents: Vec<usize>,
     pub children: Vec<usize>
+}
+
+/// Operation - Holds a quantum operation (a gate operation or a measurement operation)
+#[derive(Clone)]
+pub enum Operation {
+    Gate { gate: QuantumGate, targets: Vec<usize> },
+    Measure { qubit: usize, classical_bit: usize },
 }
 
 impl QuantumCircuit {
@@ -37,39 +43,24 @@ impl QuantumCircuit {
         }
     }
 
-    pub fn add_gate(&mut self, targets: Vec<usize>, gate: QuantumGate) -> &mut Self {
+    fn add_node(&mut self, operation: Operation) -> &mut Self {
+        let node_id = self.nodes.len();
         let mut parents: Vec<usize> = vec![];
 
-        // Calculate node id (incremental)
-        let node_id = self.nodes.len();
+        // Determine which qubits this operation touches
+        let qubits: Vec<usize> = match &operation {
+            Operation::Gate { targets, .. } => targets.clone(),
+            Operation::Measure { qubit, .. } => vec![*qubit],
+        };
 
-        match gate.arity() {
-            1 => {
-                // Finding parents
-                if let Some(i) = self.frontier[targets[0]] {
+        // Finding parents and updating frontier for each qubit
+        for &q in &qubits {
+            if let Some(i) = self.frontier[q] {
+                if !parents.contains(&i) {
                     parents.push(i);
                 }
-
-                // Updating frontier
-                self.frontier[targets[0]] = Some(node_id);
             }
-            2 => {
-                // Finding parents
-                let (ctrl, target) = (targets[0], targets[1]);
-                if let Some(i) = self.frontier[ctrl] {
-                    parents.push(i);
-                }
-                if let Some(i) = self.frontier[target] {
-                    parents.push(i);
-                }
-
-                // Updating frontier
-                self.frontier[ctrl] = Some(node_id);
-                self.frontier[target] = Some(node_id);
-            }
-            _ => {
-                panic!("Invalid arity?")
-            }
+            self.frontier[q] = Some(node_id);
         }
 
         // Register this node as a child of each parent
@@ -79,8 +70,7 @@ impl QuantumCircuit {
 
         let node = QuantumNode {
             node_id,
-            gate,
-            targets,
+            operation,
             parents,
             children: Vec::new()
         };
@@ -90,13 +80,17 @@ impl QuantumCircuit {
         self
     }
 
+    pub fn add_gate(&mut self, targets: Vec<usize>, gate: QuantumGate) -> &mut Self {
+        self.add_node(Operation::Gate { gate, targets })
+    }
+
     pub fn append(&mut self, circuit: &QuantumCircuit) -> &mut Self {
         if circuit.num_qubits != self.num_qubits {
             panic!("Cannot append circuits with different qubit counts.")
         }
 
         for node in circuit.nodes() {
-            self.add_gate(node.targets.clone(), node.gate.clone());
+            self.add_node(node.operation.clone());
         }
 
         self
@@ -109,17 +103,22 @@ impl QuantumCircuit {
         let operations = self.nodes();
         let dim = 1 << self.num_qubits; // State vector dimension = 2^num_qubits
 
-        for op in operations {
-            let gate = &op.gate;
-
-            match gate.arity() {
-                1 => {
-                    apply_single_qubit_gate(gate.matrix(), state.statevector_mut(), op.targets[0], dim);
+        for node in operations {
+            match &node.operation {
+                Operation::Gate { gate, targets } => {
+                    match gate.arity() {
+                        1 => {
+                            apply_single_qubit_gate(gate.matrix(), state.statevector_mut(), targets[0], dim);
+                        }
+                        2 => {
+                            apply_two_qubit_gate(gate.matrix(), state.statevector_mut(), targets[0], targets[1], dim);
+                        }
+                        _ => {}
+                    }
                 }
-                2 => {
-                    apply_two_qubit_gate(gate.matrix(), state.statevector_mut(), op.targets[0], op.targets[1], dim);
+                Operation::Measure { .. } => {
+                    // TODO: measurement execution
                 }
-                _ => {}
             }
         }
     }
