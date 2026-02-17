@@ -81,6 +81,11 @@ impl QuantumCircuit {
     }
 
     pub fn add_gate(&mut self, targets: Vec<usize>, gate: QuantumGate) -> &mut Self {
+        for &t in &targets {
+            if t >= self.num_qubits {
+                panic!("Target qubit index {} out of bounds for {}-qubit circuit.", t, self.num_qubits);
+            }
+        }
         self.add_node(Operation::Gate { gate, targets })
     }
 
@@ -113,7 +118,12 @@ impl QuantumCircuit {
                         2 => {
                             apply_two_qubit_gate(gate.matrix(), state.statevector_mut(), targets[0], targets[1], dim);
                         }
-                        _ => {}
+                        _ => {
+                            panic!(
+                                "Unsupported gate arity {}: only 1-qubit and 2-qubit gates are supported.",
+                                gate.arity()
+                            );
+                        }
                     }
                 }
                 Operation::Measure { .. } => {
@@ -144,7 +154,7 @@ impl QuantumCircuit {
     /// Builder functions
     /// These are helper functions that help build gates into circuits easily
     pub fn x(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::x());
@@ -152,7 +162,7 @@ impl QuantumCircuit {
     }
 
     pub fn y(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::y());
@@ -160,7 +170,7 @@ impl QuantumCircuit {
     }
 
     pub fn z(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::z());
@@ -168,7 +178,7 @@ impl QuantumCircuit {
     }
 
     pub fn s(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::s());
@@ -176,7 +186,7 @@ impl QuantumCircuit {
     }
 
     pub fn t(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::t());
@@ -184,7 +194,7 @@ impl QuantumCircuit {
     }
 
     pub fn h(&mut self, target: usize) -> &mut Self {
-        if target > self.num_qubits-1 {
+        if target >= self.num_qubits {
             panic!("Target qubit index out of bounds.")
         }
         self.add_gate(vec![target], QuantumGate::h());
@@ -192,7 +202,7 @@ impl QuantumCircuit {
     }
 
     pub fn cx(&mut self, control: usize, target: usize) -> &mut Self {
-        if control > self.num_qubits-1 || target > self.num_qubits-1 {
+        if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Control or target qubit index out of bounds.")
         }
         if control == target {
@@ -203,7 +213,7 @@ impl QuantumCircuit {
     }
 
     pub fn cp(&mut self, control: usize, target: usize, theta: f64) -> &mut Self {
-        if control > self.num_qubits-1 || target > self.num_qubits-1 {
+        if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Control or target qubit index out of bounds.")
         }
         if control == target {
@@ -214,7 +224,7 @@ impl QuantumCircuit {
     }
 
     pub fn swap(&mut self, qubit1: usize, qubit2: usize) -> &mut Self {
-        if qubit1 > self.num_qubits-1 || qubit2 > self.num_qubits-1 {
+        if qubit1 >= self.num_qubits || qubit2 >= self.num_qubits {
             panic!("Qubit index out of bounds.")
         }
         if qubit1 == qubit2 {
@@ -298,5 +308,73 @@ fn apply_two_qubit_gate(matrix: &[Complex], state: &mut [Complex], control: usiz
             matrix[13] * a1 +
             matrix[14] * a2 +
             matrix[15] * a3;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_circuit_creation() {
+        let qc = QuantumCircuit::new(3);
+        assert_eq!(qc.num_qubits(), 3);
+        assert_eq!(qc.nodes().len(), 0);
+    }
+
+    #[test]
+    fn test_valid_gate_operations() {
+        let mut qc = QuantumCircuit::new(2);
+        qc.h(0);
+        qc.cx(0, 1);
+        assert_eq!(qc.nodes().len(), 2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Target qubit index out of bounds")]
+    fn test_x_gate_out_of_bounds() {
+        let mut qc = QuantumCircuit::new(2);
+        qc.x(2);
+    }
+
+    #[test]
+    #[should_panic(expected = "Target qubit index out of bounds")]
+    fn test_single_gate_on_zero_qubit_circuit() {
+        let mut qc = QuantumCircuit::new(0);
+        qc.x(0);
+    }
+
+    #[test]
+    #[should_panic(expected = "Target qubit index")]
+    fn test_add_gate_out_of_bounds() {
+        let mut qc = QuantumCircuit::new(2);
+        qc.add_gate(vec![5], QuantumGate::x());
+    }
+
+    #[test]
+    #[should_panic(expected = "Unsupported gate arity")]
+    fn test_unsupported_gate_arity() {
+        let matrix = vec![Complex::new(0.0, 0.0); 64]; // 3-qubit gate (8x8)
+        let gate = QuantumGate::new(matrix, 3, "ThreeQubit".to_string());
+        let mut qc = QuantumCircuit::new(3);
+        qc.add_gate(vec![0, 1, 2], gate);
+        let mut state = QuantumState::new(3);
+        qc.execute_on_state(&mut state);
+    }
+
+    #[test]
+    fn test_execute_bell_state() {
+        let mut qc = QuantumCircuit::new(2);
+        qc.h(0);
+        qc.cx(0, 1);
+        let mut state = QuantumState::new(2);
+        qc.execute_on_state(&mut state);
+        let sv = state.statevector();
+        // Bell state: (|00⟩ + |11⟩) / sqrt(2)
+        let expected_amp = 1.0 / 2.0_f64.sqrt();
+        assert!((sv[0].real() - expected_amp).abs() < 1e-10);
+        assert!((sv[3].real() - expected_amp).abs() < 1e-10);
+        assert!(sv[1].real().abs() < 1e-10);
+        assert!(sv[2].real().abs() < 1e-10);
     }
 }

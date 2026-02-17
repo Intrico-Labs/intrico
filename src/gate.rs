@@ -22,7 +22,18 @@ pub struct QuantumGate {
 /// Initializers
 impl QuantumGate {
     /// Initialises a new quantum gate
+    ///
+    /// # Panics
+    /// Panics if the matrix length does not match the expected dimension for the given arity.
+    /// A gate with arity `n` must have a `2^n × 2^n` matrix, i.e. `4^n` elements.
     pub fn new(matrix: Vec<Complex>, arity: usize, name: String) -> Self {
+        let expected_len = 1 << (2 * arity); // (2^n)^2 = 4^n
+        if matrix.len() != expected_len {
+            panic!(
+                "Invalid matrix size for gate '{}': expected {} elements for arity {}, got {}.",
+                name, expected_len, arity, matrix.len()
+            );
+        }
         Self { matrix, arity, name }
     }
 }
@@ -180,5 +191,39 @@ impl QuantumGate {
             arity: 2,
             name: "SWAP".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_gate_creation() {
+        let matrix = vec![
+            Complex::new(0.0, 0.0),
+            Complex::new(1.0, 0.0),
+            Complex::new(1.0, 0.0),
+            Complex::new(0.0, 0.0),
+        ];
+        let gate = QuantumGate::new(matrix, 1, "X".to_string());
+        assert_eq!(gate.arity(), 1);
+        assert_eq!(gate.matrix().len(), 4);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid matrix size")]
+    fn test_gate_creation_wrong_matrix_size() {
+        let matrix = vec![
+            Complex::new(0.0, 0.0),
+            Complex::new(1.0, 0.0),
+        ];
+        QuantumGate::new(matrix, 1, "Bad".to_string());
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid matrix size")]
+    fn test_gate_creation_empty_matrix() {
+        QuantumGate::new(vec![], 1, "Empty".to_string());
     }
 }
