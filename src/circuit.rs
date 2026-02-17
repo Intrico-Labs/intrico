@@ -21,6 +21,7 @@ pub struct QuantumCircuit {
 
 /// Quantum Node - represents a node in the graph which holds the QuantumGate
 pub struct QuantumNode {
+    pub node_id: usize,
     pub gate: QuantumGate,
     pub targets: Vec<usize>,
     pub parents: Vec<usize>
@@ -71,6 +72,7 @@ impl QuantumCircuit {
         }
 
         let node = QuantumNode {
+            node_id,
             gate,
             targets,
             parents
