@@ -24,7 +24,8 @@ pub struct QuantumNode {
     pub node_id: usize,
     pub gate: QuantumGate,
     pub targets: Vec<usize>,
-    pub parents: Vec<usize>
+    pub parents: Vec<usize>,
+    pub children: Vec<usize>
 }
 
 impl QuantumCircuit {
@@ -71,11 +72,17 @@ impl QuantumCircuit {
             }
         }
 
+        // Register this node as a child of each parent
+        for &parent_id in &parents {
+            self.nodes[parent_id].children.push(node_id);
+        }
+
         let node = QuantumNode {
             node_id,
             gate,
             targets,
-            parents
+            parents,
+            children: Vec::new()
         };
 
         self.nodes.push(node);
