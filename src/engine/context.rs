@@ -9,8 +9,7 @@ use rand::{Rng, RngExt};
 use rusticle::Complex;
 
 use crate::circuit::{Operation, QuantumCircuit};
-use crate::creg::ClassicalRegister;
-use crate::state::QuantumState;
+use crate::core::{ClassicalRegister, QuantumState};
 
 /// Execution context that holds the mutable state for circuit execution
 pub struct ExecutionContext {

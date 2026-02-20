@@ -2,12 +2,14 @@
 //!
 //! ### High-performance quantum computing library for Rust
 //! **Simulate quantum circuits with precision and speed**
-//! 
+//!
 
-pub mod state;
-pub mod gate;
+pub mod core;
 pub mod circuit;
-pub mod context;
+pub mod engine;
 pub mod library;
-pub mod creg;
-pub mod result;
+
+// Re-exports
+pub use core::{QuantumState, QuantumGate, ClassicalRegister};
+pub use circuit::{QuantumCircuit, Operation, QuantumNode};
+pub use engine::{ExecutionContext, ExecutionTime, MeasurementResult, SamplingResult};

@@ -1,4 +1,4 @@
-use intrico::circuit::QuantumCircuit;
+use intrico::QuantumCircuit;
 
 fn main() {
     // Bell pair: H(0) -> CX(0, 1) -> Measure all

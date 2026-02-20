@@ -6,8 +6,7 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::creg::ClassicalRegister;
-use crate::state::QuantumState;
+use crate::core::{ClassicalRegister, QuantumState};
 
 /// Execution time in milliseconds with 4-decimal precision
 #[derive(Debug, Clone, Copy)]

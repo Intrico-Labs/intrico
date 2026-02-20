@@ -11,10 +11,8 @@ use std::time::Instant;
 
 use rand::RngExt;
 
-use crate::context::ExecutionContext;
-use crate::creg::ClassicalRegister;
-use crate::gate::QuantumGate;
-use crate::result::{ExecutionTime, MeasurementResult, SamplingResult};
+use crate::core::{ClassicalRegister, QuantumGate};
+use crate::engine::{ExecutionContext, ExecutionTime, MeasurementResult, SamplingResult};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -321,7 +319,7 @@ impl QuantumCircuit {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::context::ExecutionContext;
+    use crate::engine::ExecutionContext;
     use rusticle::Complex;
 
     #[test]

@@ -1,4 +1,5 @@
-use intrico::{circuit::QuantumCircuit, context::ExecutionContext, library::qft::QFT};
+use intrico::{ExecutionContext, QuantumCircuit};
+use intrico::library::qft::QFT;
 
 fn main() {
     // Initializing the circuit to |110⟩ state
