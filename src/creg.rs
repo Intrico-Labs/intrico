@@ -23,6 +23,21 @@ impl ClassicalRegister {
         }
         self.bits[index]
     }
+
+    pub fn size(&self) -> usize {
+        self.bits.len()
+    }
+
+    /// Returns the bitstring representation of the register (e.g. "101")
+    /// Unmeasured bits default to 0.
+    pub fn bitstring(&self) -> String {
+        self.bits.iter()
+            .map(|b| match b {
+                Some(v) => char::from_digit(*v as u32, 10).unwrap_or('0'),
+                None => '0',
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
