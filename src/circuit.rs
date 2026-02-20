@@ -7,11 +7,13 @@
 //! specifically a DAG to keep it memory efficient and support parallelism
 
 use std::cmp::{max, min};
+use std::collections::HashMap;
+use std::time::Instant;
 
 use rand::{Rng, RngExt};
 use rusticle::Complex;
 
-use crate::{creg::ClassicalRegister, gate::QuantumGate, state::QuantumState};
+use crate::{creg::ClassicalRegister, gate::QuantumGate, result::{MeasurementResult, SamplingResult}, state::QuantumState};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -140,9 +142,37 @@ impl QuantumCircuit {
         creg
     }
 
-    pub fn execute(&self) -> ClassicalRegister {
+    pub fn execute(&self) -> MeasurementResult {
+        let start = Instant::now();
         let mut state = QuantumState::new(self.num_qubits);
-        self.execute_on_state(&mut state)
+        let classical_register = self.execute_on_state(&mut state);
+        let execution_time = start.elapsed();
+
+        MeasurementResult {
+            statevector: state,
+            classical_register,
+            shots: 1,
+            execution_time,
+        }
+    }
+
+    pub fn sample(&self, shots: usize) -> SamplingResult {
+        let start = Instant::now();
+        let mut counts: HashMap<String, usize> = HashMap::new();
+
+        for _ in 0..shots {
+            let mut state = QuantumState::new(self.num_qubits);
+            let creg = self.execute_on_state(&mut state);
+            *counts.entry(creg.bitstring()).or_insert(0) += 1;
+        }
+
+        let execution_time = start.elapsed();
+
+        SamplingResult {
+            counts,
+            shots,
+            execution_time,
+        }
     }
 
     fn classical_register_size(&self) -> usize {
