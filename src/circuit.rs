@@ -13,7 +13,7 @@ use std::time::Instant;
 use rand::{Rng, RngExt};
 use rusticle::Complex;
 
-use crate::{creg::ClassicalRegister, gate::QuantumGate, result::{MeasurementResult, SamplingResult}, state::QuantumState};
+use crate::{creg::ClassicalRegister, gate::QuantumGate, result::{ExecutionTime, MeasurementResult, SamplingResult}, state::QuantumState};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -146,13 +146,12 @@ impl QuantumCircuit {
         let start = Instant::now();
         let mut state = QuantumState::new(self.num_qubits);
         let classical_register = self.execute_on_state(&mut state);
-        let execution_time = start.elapsed();
 
         MeasurementResult {
             statevector: state,
             classical_register,
             shots: 1,
-            execution_time,
+            execution_time: ExecutionTime::from_duration(start.elapsed()),
         }
     }
 
@@ -225,7 +224,7 @@ impl QuantumCircuit {
         SamplingResult {
             counts,
             shots,
-            execution_time: start.elapsed(),
+            execution_time: ExecutionTime::from_duration(start.elapsed()),
         }
     }
 
