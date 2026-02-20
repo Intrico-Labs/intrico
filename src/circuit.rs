@@ -160,19 +160,87 @@ impl QuantumCircuit {
         let start = Instant::now();
         let mut counts: HashMap<String, usize> = HashMap::new();
 
-        for _ in 0..shots {
+        if self.has_terminal_measurements_only() {
+            // Optimized: execute gates once, sample from the probability distribution
             let mut state = QuantumState::new(self.num_qubits);
-            let creg = self.execute_on_state(&mut state);
-            *counts.entry(creg.bitstring()).or_insert(0) += 1;
-        }
+            let dim = 1 << self.num_qubits;
 
-        let execution_time = start.elapsed();
+            for node in &self.nodes {
+                if let Operation::Gate { gate, targets } = &node.operation {
+                    match gate.arity() {
+                        1 => apply_single_qubit_gate(gate.matrix(), state.statevector_mut(), targets[0], dim),
+                        2 => apply_two_qubit_gate(gate.matrix(), state.statevector_mut(), targets[0], targets[1], dim),
+                        _ => panic!(
+                            "Unsupported gate arity {}: only 1-qubit and 2-qubit gates are supported.",
+                            gate.arity()
+                        ),
+                    }
+                }
+            }
+
+            // Build cumulative probability distribution
+            let probs: Vec<f64> = state.statevector()
+                .iter()
+                .map(|a| a.norm_squared())
+                .collect();
+
+            // Collect qubit -> classical_bit mappings
+            let measurements: Vec<(usize, usize)> = self.nodes.iter()
+                .filter_map(|n| match &n.operation {
+                    Operation::Measure { qubit, classical_bit } => Some((*qubit, *classical_bit)),
+                    _ => None,
+                })
+                .collect();
+
+            let creg_size = self.classical_register_size();
+            let mut rng = rand::rng();
+
+            for _ in 0..shots {
+                let r: f64 = rng.random();
+                let mut cumulative = 0.0;
+                let mut sampled_index = dim - 1;
+                for (i, &p) in probs.iter().enumerate() {
+                    cumulative += p;
+                    if r < cumulative {
+                        sampled_index = i;
+                        break;
+                    }
+                }
+
+                let mut creg = ClassicalRegister::new(creg_size);
+                for &(qubit, classical_bit) in &measurements {
+                    creg.set(classical_bit, ((sampled_index >> qubit) & 1) as u8);
+                }
+                *counts.entry(creg.bitstring()).or_insert(0) += 1;
+            }
+        } else {
+            // Fallback: full re-execution each shot (required for mid-circuit measurement)
+            for _ in 0..shots {
+                let mut state = QuantumState::new(self.num_qubits);
+                let creg = self.execute_on_state(&mut state);
+                *counts.entry(creg.bitstring()).or_insert(0) += 1;
+            }
+        }
 
         SamplingResult {
             counts,
             shots,
-            execution_time,
+            execution_time: start.elapsed(),
         }
+    }
+
+    /// Returns true if all measurements come after all gates in the DAG.
+    /// When true, sample() can execute gates once and sample from probabilities.
+    fn has_terminal_measurements_only(&self) -> bool {
+        let mut seen_measure = false;
+        for node in &self.nodes {
+            match &node.operation {
+                Operation::Measure { .. } => seen_measure = true,
+                Operation::Gate { .. } if seen_measure => return false,
+                _ => {}
+            }
+        }
+        true
     }
 
     fn classical_register_size(&self) -> usize {
