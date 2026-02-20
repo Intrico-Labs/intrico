@@ -8,9 +8,10 @@
 
 use std::cmp::{max, min};
 
+use rand::{Rng, RngExt};
 use rusticle::Complex;
 
-use crate::{gate::QuantumGate, state::QuantumState};
+use crate::{creg::ClassicalRegister, gate::QuantumGate, state::QuantumState};
 
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
@@ -103,10 +104,13 @@ impl QuantumCircuit {
 
     /// Execution Engine
     /// This basically holds all the logic for executing a quantum circuit on a given quantum state
-    
-    pub fn execute_on_state(&self, state: &mut QuantumState) {
+
+    pub fn execute_on_state(&self, state: &mut QuantumState) -> ClassicalRegister {
         let operations = self.nodes();
-        let dim = 1 << self.num_qubits; // State vector dimension = 2^num_qubits
+        let dim = 1 << self.num_qubits;
+        let creg_size = self.classical_register_size();
+        let mut creg = ClassicalRegister::new(creg_size);
+        let mut rng = rand::rng();
 
         for node in operations {
             match &node.operation {
@@ -126,16 +130,29 @@ impl QuantumCircuit {
                         }
                     }
                 }
-                Operation::Measure { .. } => {
-                    // TODO: measurement execution
+                Operation::Measure { qubit, classical_bit } => {
+                    let outcome = measure_qubit(state.statevector_mut(), *qubit, dim, &mut rng);
+                    creg.set(*classical_bit, Some(outcome));
                 }
             }
         }
+
+        creg
     }
 
-    pub fn execute(&self) {
+    pub fn execute(&self) -> ClassicalRegister {
         let mut state = QuantumState::new(self.num_qubits);
-        self.execute_on_state(&mut state);
+        self.execute_on_state(&mut state)
+    }
+
+    fn classical_register_size(&self) -> usize {
+        self.nodes.iter()
+            .filter_map(|n| match &n.operation {
+                Operation::Measure { classical_bit, .. } => Some(classical_bit + 1),
+                _ => None,
+            })
+            .max()
+            .unwrap_or(0)
     }
 
     /// Getters
@@ -233,10 +250,73 @@ impl QuantumCircuit {
         self.add_gate(vec![qubit1, qubit2], QuantumGate::swap());
         self
     }
+
+    /// Measurement builder functions
+
+    pub fn measure(&mut self, qubit: usize, classical_bit: usize) -> &mut Self {
+        if qubit >= self.num_qubits {
+            panic!("Qubit index out of bounds.")
+        }
+        self.add_node(Operation::Measure { qubit, classical_bit })
+    }
+
+    pub fn measure_all(&mut self) -> &mut Self {
+        for i in 0..self.num_qubits {
+            self.add_node(Operation::Measure { qubit: i, classical_bit: i });
+        }
+        self
+    }
 }
 
 /// Helper functions
 /// These are essential helper functions used in above implementations
+
+fn measure_qubit(state: &mut [Complex], qubit: usize, dim: usize, rng: &mut impl Rng) -> usize {
+    let stride = 1 << qubit;
+    let period = stride << 1;
+
+    // Calculate probability of measuring |0⟩
+    let mut prob_zero = 0.0;
+    let mut idx = 0;
+    while idx < dim {
+        let limit = idx + stride;
+        let mut i0 = idx;
+        while i0 < limit {
+            prob_zero += state[i0].norm_squared();
+            i0 += 1;
+        }
+        idx += period;
+    }
+
+    // Sample outcome
+    let r: f64 = rng.random();
+    let outcome = if r < prob_zero { 0 } else { 1 };
+
+    // Collapse and renormalize
+    let prob = if outcome == 0 { prob_zero } else { 1.0 - prob_zero };
+    let inv_norm = Complex::new(1.0 / prob.sqrt(), 0.0);
+    let zero = Complex::new(0.0, 0.0);
+
+    idx = 0;
+    while idx < dim {
+        let limit = idx + stride;
+        let mut i0 = idx;
+        while i0 < limit {
+            let i1 = i0 + stride;
+            if outcome == 0 {
+                state[i0] = state[i0] * inv_norm;
+                state[i1] = zero;
+            } else {
+                state[i0] = zero;
+                state[i1] = state[i1] * inv_norm;
+            }
+            i0 += 1;
+        }
+        idx += period;
+    }
+
+    outcome
+}
 
 fn apply_single_qubit_gate(matrix: &[Complex], state: &mut [Complex], target: usize, dim: usize) {
     let stride = 1 << target;
