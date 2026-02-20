@@ -7,6 +7,7 @@
 pub mod state;
 pub mod gate;
 pub mod circuit;
+pub mod context;
 pub mod library;
 pub mod creg;
 pub mod result;
