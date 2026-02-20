@@ -1,4 +1,4 @@
-use intrico::{circuit::QuantumCircuit, library::qft::QFT, state::QuantumState};
+use intrico::{circuit::QuantumCircuit, context::ExecutionContext, library::qft::QFT};
 
 fn main() {
     // Initializing the circuit to |110⟩ state
@@ -9,11 +9,11 @@ fn main() {
     let qft = QFT::new(3);
     qc.append(&qft);
 
-    let mut statevec = QuantumState::new(3);
+    let mut ctx = ExecutionContext::new(3, 0);
 
-    println!("Statevec before execution: {}", statevec);
+    println!("Statevec before execution: {}", ctx.state());
 
-    qc.execute_on_state(&mut statevec);
+    ctx.run(&qc);
 
-    println!("Statevec after execution: {:.4}", statevec);
+    println!("Statevec after execution: {:.4}", ctx.state());
 }
