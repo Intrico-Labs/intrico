@@ -14,3 +14,4 @@ readme = "README.md"
 [dependencies]
 rand = "0.10.0"
 rusticle = "2.0.0"
+terminal_size = "0.4.3"
