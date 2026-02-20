@@ -134,7 +134,7 @@ impl QuantumCircuit {
                 }
                 Operation::Measure { qubit, classical_bit } => {
                     let outcome = measure_qubit(state.statevector_mut(), *qubit, dim, &mut rng);
-                    creg.set(*classical_bit, Some(outcome));
+                    creg.set(*classical_bit, outcome as u8);
                 }
             }
         }
