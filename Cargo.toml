@@ -4,7 +4,13 @@ version = "2.0.2"
 edition = "2024"
 description = "High-performance Quantum Computing library to simulate quantum circuits with precision and power."
 authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
-keywords = ["quantum-computing", "quantum-technology", "quantum-sdk", "quantum", "rust"]
+keywords = [
+    "quantum-computing",
+    "quantum-technology",
+    "quantum-sdk",
+    "quantum",
+    "rust",
+]
 categories = ["development-tools", "science", "simulation"]
 license = "Apache-2.0"
 repository = "https://github.com/Intrico-Labs/intrico"
@@ -12,6 +18,7 @@ readme = "README.md"
 
 
 [dependencies]
+qisa = "0.1.3"
 rand = "0.10.0"
 rusticle = "2.0.0"
 terminal_size = "0.4.3"
