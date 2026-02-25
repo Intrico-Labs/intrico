@@ -21,6 +21,7 @@ pub struct QuantumGate {
     name: String,
 }
 
+// TODO: added rotational gates (Rx, Ry, Rz, U1, U2, U3)
 #[derive(Debug, Clone)]
 pub enum GateKind {
     H,
