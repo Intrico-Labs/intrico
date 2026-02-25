@@ -17,6 +17,7 @@ use crate::engine::{ExecutionContext, ExecutionTime, MeasurementResult, Sampling
 /// Quantum Circuit - A graph representation of a quantum circuit
 pub struct QuantumCircuit {
     num_qubits: usize,
+    classical_regs: usize,
     nodes: Vec<QuantumNode>,
     frontier: Vec<Option<usize>>,
 }
@@ -26,28 +27,42 @@ pub struct QuantumNode {
     pub node_id: usize,
     pub operation: Operation,
     pub parents: Vec<usize>,
-    pub children: Vec<usize>
+    pub children: Vec<usize>,
 }
 
 /// Operation - Holds a quantum operation (a gate operation or a measurement operation)
 #[derive(Clone)]
 pub enum Operation {
-    Gate { gate: QuantumGate, targets: Vec<usize> },
-    Measure { qubit: usize, classical_bit: usize },
+    Gate {
+        gate: QuantumGate,
+        targets: Vec<usize>,
+    },
+    Measure {
+        qubit: usize,
+        classical_bit: usize,
+    },
 }
 
 impl QuantumCircuit {
     pub fn new(num_qubits: usize) -> Self {
         Self {
             num_qubits,
+            classical_regs: 0,
             nodes: Vec::new(),
-            frontier: vec![None; num_qubits]
+            frontier: vec![None; num_qubits],
         }
     }
 
     fn add_node(&mut self, operation: Operation) -> &mut Self {
         let node_id = self.nodes.len();
         let mut parents: Vec<usize> = vec![];
+
+        // Auto-update classical register count
+        if let Operation::Measure { classical_bit, .. } = &operation {
+            if *classical_bit >= self.classical_regs {
+                self.classical_regs = classical_bit + 1;
+            }
+        }
 
         // Determine which qubits this operation touches
         let qubits: Vec<usize> = match &operation {
@@ -74,7 +89,7 @@ impl QuantumCircuit {
             node_id,
             operation,
             parents,
-            children: Vec::new()
+            children: Vec::new(),
         };
 
         self.nodes.push(node);
@@ -85,7 +100,10 @@ impl QuantumCircuit {
     pub fn add_gate(&mut self, targets: Vec<usize>, gate: QuantumGate) -> &mut Self {
         for &t in &targets {
             if t >= self.num_qubits {
-                panic!("Target qubit index {} out of bounds for {}-qubit circuit.", t, self.num_qubits);
+                panic!(
+                    "Target qubit index {} out of bounds for {}-qubit circuit.",
+                    t, self.num_qubits
+                );
             }
         }
         self.add_node(Operation::Gate { gate, targets })
@@ -107,7 +125,7 @@ impl QuantumCircuit {
 
     pub fn execute(&self) -> MeasurementResult {
         let start = Instant::now();
-        let creg_size = self.classical_register_size();
+        let creg_size = self.classical_regs;
         let mut ctx = ExecutionContext::new(self.num_qubits, creg_size);
         ctx.run(self);
         let (statevector, classical_register) = ctx.into_inner();
@@ -123,21 +141,28 @@ impl QuantumCircuit {
     pub fn sample(&self, shots: usize) -> SamplingResult {
         let start = Instant::now();
         let mut counts: HashMap<String, usize> = HashMap::new();
-        let creg_size = self.classical_register_size();
+        let creg_size = self.classical_regs;
 
         if self.has_terminal_measurements_only() {
             // Optimized: execute gates once, sample from the probability distribution
             let mut ctx = ExecutionContext::new(self.num_qubits, 0);
             ctx.run_gates_only(self);
 
-            let probs: Vec<f64> = ctx.state().statevector()
+            let probs: Vec<f64> = ctx
+                .state()
+                .statevector()
                 .iter()
                 .map(|a| a.norm_squared())
                 .collect();
 
-            let measurements: Vec<(usize, usize)> = self.nodes.iter()
+            let measurements: Vec<(usize, usize)> = self
+                .nodes
+                .iter()
                 .filter_map(|n| match &n.operation {
-                    Operation::Measure { qubit, classical_bit } => Some((*qubit, *classical_bit)),
+                    Operation::Measure {
+                        qubit,
+                        classical_bit,
+                    } => Some((*qubit, *classical_bit)),
                     _ => None,
                 })
                 .collect();
@@ -164,11 +189,13 @@ impl QuantumCircuit {
                 *counts.entry(creg.bitstring()).or_insert(0) += 1;
             }
         } else {
-            // Fallback: full re-execution each shot (required for mid-circuit measurement)
+            // Full re-execution each shot (required for mid-circuit measurement)
             for _ in 0..shots {
                 let mut ctx = ExecutionContext::new(self.num_qubits, creg_size);
                 ctx.run(self);
-                *counts.entry(ctx.classical_register().bitstring()).or_insert(0) += 1;
+                *counts
+                    .entry(ctx.classical_register().bitstring())
+                    .or_insert(0) += 1;
             }
         }
 
@@ -193,19 +220,13 @@ impl QuantumCircuit {
         true
     }
 
-    fn classical_register_size(&self) -> usize {
-        self.nodes.iter()
-            .filter_map(|n| match &n.operation {
-                Operation::Measure { classical_bit, .. } => Some(classical_bit + 1),
-                _ => None,
-            })
-            .max()
-            .unwrap_or(0)
-    }
-
     /// Getters
     pub fn num_qubits(&self) -> usize {
         self.num_qubits
+    }
+
+    pub fn classical_regs(&self) -> usize {
+        self.classical_regs
     }
 
     pub fn nodes(&self) -> &Vec<QuantumNode> {
@@ -305,12 +326,18 @@ impl QuantumCircuit {
         if qubit >= self.num_qubits {
             panic!("Qubit index out of bounds.")
         }
-        self.add_node(Operation::Measure { qubit, classical_bit })
+        self.add_node(Operation::Measure {
+            qubit,
+            classical_bit,
+        })
     }
 
     pub fn measure_all(&mut self) -> &mut Self {
         for i in 0..self.num_qubits {
-            self.add_node(Operation::Measure { qubit: i, classical_bit: i });
+            self.add_node(Operation::Measure {
+                qubit: i,
+                classical_bit: i,
+            });
         }
         self
     }
