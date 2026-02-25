@@ -75,6 +75,10 @@ impl QuantumGate {
     pub fn name(&self) -> &String {
         &self.name
     }
+
+    pub fn kind(&self) -> &GateKind {
+        &self.kind
+    }
 }
 
 /// Standard Gates
