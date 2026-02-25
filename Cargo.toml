@@ -1,6 +1,6 @@
 [package]
 name = "intrico"
-version = "2.0.2"
+version = "2.0.3"
 edition = "2024"
 description = "High-performance Quantum Computing library to simulate quantum circuits with precision and power."
 authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
