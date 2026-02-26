@@ -13,6 +13,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("==== QISA Program Bytes ====\n{:0x?}", bytes);
 
+    // Store to a bytecode file for easy transport
+    // fs::write("bell.qisa", &bytes)?;
+    // println!("Saved to bell.qisa");
     Ok(())
 }
 

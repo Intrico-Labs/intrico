@@ -4,5 +4,6 @@
 .DS_Store
 
 t_*.rs
+examples/*.qisa
 
 claude.md
