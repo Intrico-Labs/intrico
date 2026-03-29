@@ -134,6 +134,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "intrico-node"
+version = "2.1.1"
+dependencies = [
+ "intrico-core",
+ "qisa",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,16 @@
+[package]
+name = "intrico-node"
+version = "2.1.1"
+edition = "2024"
+description = "QISA bytecode executor node for Intrico quantum computing."
+authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/Intrico-Labs/intrico"
+
+[[bin]]
+name = "intrico-node"
+path = "src/main.rs"
+
+[dependencies]
+intrico-core = { path = "../intrico-core", version = "2.1.1" }
+qisa = "0.1.7"
