@@ -117,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "intrico"
-version = "2.0.3"
+version = "2.1.1"
 dependencies = [
  "intrico-core",
  "qisa",
@@ -127,7 +127,7 @@ dependencies = [
 
 [[package]]
 name = "intrico-core"
-version = "2.0.3"
+version = "2.1.1"
 dependencies = [
  "rand",
  "rusticle",
