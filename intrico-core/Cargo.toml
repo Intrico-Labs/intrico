@@ -14,8 +14,6 @@ keywords = [
 categories = ["development-tools", "science", "simulation"]
 license = "Apache-2.0"
 repository = "https://github.com/Intrico-Labs/intrico"
-readme = "README.md"
-
 [dependencies]
 rand = "0.10.0"
 rusticle = "2.0.0"

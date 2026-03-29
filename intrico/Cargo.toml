@@ -14,8 +14,6 @@ keywords = [
 categories = ["development-tools", "science", "simulation"]
 license = "Apache-2.0"
 repository = "https://github.com/Intrico-Labs/intrico"
-readme = "README.md"
-
 [dependencies]
 intrico-core = { path = "../intrico-core", version = "2.0.3" }
 qisa = "0.1.7"
