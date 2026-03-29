@@ -1,6 +1,6 @@
 [package]
 name = "intrico-node"
-version = "2.1.1"
+version = "0.1.0"
 edition = "2024"
 description = "QISA bytecode executor node for Intrico quantum computing."
 authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]

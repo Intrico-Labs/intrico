@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "intrico-node"
-version = "2.1.1"
+version = "0.1.0"
 dependencies = [
  "intrico-core",
  "qisa",
