@@ -1,5 +1,8 @@
 use qisa::core::{
-    constant::ConstEntry, footer::Footer, header::Header, instruction::Instruction,
+    constant::{ConstEntry, ConstKind},
+    footer::Footer,
+    header::Header,
+    instruction::Instruction,
     program::Program,
 };
 
@@ -11,7 +14,7 @@ impl QisaEncoder {
     pub fn encode(circuit: &QuantumCircuit) -> Result<Vec<u8>, &'static str> {
         let header = Header::new(circuit.num_qubits() as u32, circuit.classical_regs() as u32);
 
-        let constants: Vec<ConstEntry> = Vec::new(); // TODO: add constants parsing
+        let mut constants: Vec<ConstEntry> = Vec::new();
         let mut instructions: Vec<Instruction> = Vec::new();
         let footer = Footer::new();
 
@@ -66,9 +69,15 @@ impl QisaEncoder {
                         });
                     }
                     GateKind::CP => {
+                        // CP matrix[15] = e^(i*theta) = cos(theta) + i*sin(theta)
+                        let elem = &gate.matrix()[15];
+                        let theta = elem.imag().atan2(elem.real());
+                        let const_index = constants.len() as u64;
+                        constants.push(ConstEntry { kind: ConstKind::F64(theta) });
                         instructions.push(Instruction::CPHASE {
                             q1: targets[0] as u32,
                             q2: targets[1] as u32,
+                            const_index,
                         });
                     }
                     // GateKind::Swap => todo!(),

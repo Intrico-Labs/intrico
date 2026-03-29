@@ -1,7 +1,5 @@
-use std::f64::consts::FRAC_PI_2;
-
 use intrico_core::QuantumCircuit;
-use qisa::core::{instruction::Instruction, program::Program};
+use qisa::core::{constant::ConstKind, instruction::Instruction, program::Program};
 
 pub fn decode_program(program: &Program) -> Result<QuantumCircuit, String> {
     let num_qubits = program.header.logical_qubit_count as usize;
@@ -29,14 +27,13 @@ pub fn decode_program(program: &Program) -> Result<QuantumCircuit, String> {
             Instruction::SWAP { q1, q2 } => {
                 circuit.swap(*q1 as usize, *q2 as usize);
             }
-            Instruction::CPHASE { q1, q2 } => {
-                // QISA CPHASE carries no theta — defaulting to π/2
-                // TODO: extend QISA CPHASE to carry a const_index for theta
-                eprintln!(
-                    "Warning: CPHASE decoded with default theta=π/2 \
-                     (theta not stored in QISA format)"
-                );
-                circuit.cp(*q1 as usize, *q2 as usize, FRAC_PI_2);
+            Instruction::CPHASE { q1, q2, const_index } => {
+                let entry = program.constants.get(*const_index as usize)
+                    .ok_or_else(|| format!("CPHASE const_index {} out of bounds", const_index))?;
+                let theta = match entry.kind {
+                    ConstKind::F64(v) => v,
+                };
+                circuit.cp(*q1 as usize, *q2 as usize, theta);
             }
             Instruction::RX { qubit, .. }
             | Instruction::RY { qubit, .. }

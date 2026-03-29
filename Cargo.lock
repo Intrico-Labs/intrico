@@ -198,9 +198,9 @@ dependencies = [
 
 [[package]]
 name = "qisa"
-version = "0.1.7"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4063f685b443dabdacbca509de5978e2b056e42311d2e36744d3739ba48e49f"
+checksum = "3f9765e13920228697d6a3c7686302bbbac8ede08be2f337294c56cce8721a87"
 
 [[package]]
 name = "quote"
