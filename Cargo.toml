@@ -1,24 +1,3 @@
-[package]
-name = "intrico"
-version = "2.0.3"
-edition = "2024"
-description = "High-performance Quantum Computing library to simulate quantum circuits with precision and power."
-authors = ["Soham Ghugare <soham.ghugare@gmail.com>"]
-keywords = [
-    "quantum-computing",
-    "quantum-technology",
-    "quantum-sdk",
-    "quantum",
-    "rust",
-]
-categories = ["development-tools", "science", "simulation"]
-license = "Apache-2.0"
-repository = "https://github.com/Intrico-Labs/intrico"
-readme = "README.md"
-
-
-[dependencies]
-qisa = "0.1.7"
-rand = "0.10.0"
-rusticle = "2.0.0"
-terminal_size = "0.4.3"
+[workspace]
+members = ["intrico-core", "intrico"]
+resolver = "2"
