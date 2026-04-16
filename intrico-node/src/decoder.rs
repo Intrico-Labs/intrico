@@ -35,13 +35,23 @@ pub fn decode_program(program: &Program) -> Result<QuantumCircuit, String> {
                 };
                 circuit.cp(*q1 as usize, *q2 as usize, theta);
             }
-            Instruction::RX { qubit, .. }
-            | Instruction::RY { qubit, .. }
-            | Instruction::RZ { qubit, .. } => {
-                return Err(format!(
-                    "Parameterized rotation gate at qubit {} not yet supported",
-                    qubit
-                ));
+            Instruction::RX { qubit, const_index } => {
+                let entry = program.constants.get(*const_index as usize)
+                    .ok_or_else(|| format!("RX const_index {} out of bounds", const_index))?;
+                let theta = match entry.kind { ConstKind::F64(v) => v };
+                circuit.rx(*qubit as usize, theta);
+            }
+            Instruction::RY { qubit, const_index } => {
+                let entry = program.constants.get(*const_index as usize)
+                    .ok_or_else(|| format!("RY const_index {} out of bounds", const_index))?;
+                let theta = match entry.kind { ConstKind::F64(v) => v };
+                circuit.ry(*qubit as usize, theta);
+            }
+            Instruction::RZ { qubit, const_index } => {
+                let entry = program.constants.get(*const_index as usize)
+                    .ok_or_else(|| format!("RZ const_index {} out of bounds", const_index))?;
+                let theta = match entry.kind { ConstKind::F64(v) => v };
+                circuit.rz(*qubit as usize, theta);
             }
             Instruction::Measure { qubit, classical } => {
                 circuit.measure(*qubit as usize, *classical as usize);

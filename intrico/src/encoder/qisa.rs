@@ -80,8 +80,45 @@ impl QisaEncoder {
                             const_index,
                         });
                     }
-                    // GateKind::Swap => todo!(),
-                    // GateKind::Custom => todo!(),
+                    GateKind::Rx => {
+                        // Rx matrix[1] = -i·sin(θ/2), recover theta from imag of element [1]
+                        let elem = &gate.matrix()[1];
+                        let theta = -elem.imag() * 2.0;
+                        let const_index = constants.len() as u64;
+                        constants.push(ConstEntry { kind: ConstKind::F64(theta) });
+                        instructions.push(Instruction::RX {
+                            qubit: targets[0] as u32,
+                            const_index,
+                        });
+                    }
+                    GateKind::Ry => {
+                        // Ry matrix[2] = sin(θ/2), recover theta from element [2]
+                        let elem = &gate.matrix()[2];
+                        let theta = elem.real().asin() * 2.0;
+                        let const_index = constants.len() as u64;
+                        constants.push(ConstEntry { kind: ConstKind::F64(theta) });
+                        instructions.push(Instruction::RY {
+                            qubit: targets[0] as u32,
+                            const_index,
+                        });
+                    }
+                    GateKind::Rz => {
+                        // Rz matrix[3] = e^(iθ/2), recover theta from imag/real of element [3]
+                        let elem = &gate.matrix()[3];
+                        let theta = elem.imag().atan2(elem.real()) * 2.0;
+                        let const_index = constants.len() as u64;
+                        constants.push(ConstEntry { kind: ConstKind::F64(theta) });
+                        instructions.push(Instruction::RZ {
+                            qubit: targets[0] as u32,
+                            const_index,
+                        });
+                    }
+                    GateKind::Swap => {
+                        instructions.push(Instruction::SWAP {
+                            q1: targets[0] as u32,
+                            q2: targets[1] as u32,
+                        });
+                    }
                     _ => return Err("Unsupported gate type"),
                 },
                 Operation::Measure {

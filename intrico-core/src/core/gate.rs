@@ -21,7 +21,6 @@ pub struct QuantumGate {
     name: String,
 }
 
-// TODO: added rotational gates (Rx, Ry, Rz, U1, U2, U3)
 #[derive(Debug, Clone)]
 pub enum GateKind {
     H,
@@ -30,6 +29,9 @@ pub enum GateKind {
     Z,
     S,
     T,
+    Rx,
+    Ry,
+    Rz,
     CX,
     CP,
     Swap,
@@ -180,6 +182,60 @@ impl QuantumGate {
             matrix,
             arity: 1,
             name: "H".to_string(),
+        }
+    }
+
+    /// Rx Gate — rotation around X-axis by theta
+    /// [[cos(θ/2), -i·sin(θ/2)], [-i·sin(θ/2), cos(θ/2)]]
+    pub fn rx(theta: f64) -> Self {
+        let half = theta / 2.0;
+        let matrix = vec![
+            Complex::new(half.cos(), 0.0),
+            Complex::new(0.0, -half.sin()),
+            Complex::new(0.0, -half.sin()),
+            Complex::new(half.cos(), 0.0),
+        ];
+        Self {
+            kind: GateKind::Rx,
+            matrix,
+            arity: 1,
+            name: "RX".to_string(),
+        }
+    }
+
+    /// Ry Gate — rotation around Y-axis by theta
+    /// [[cos(θ/2), -sin(θ/2)], [sin(θ/2), cos(θ/2)]]
+    pub fn ry(theta: f64) -> Self {
+        let half = theta / 2.0;
+        let matrix = vec![
+            Complex::new(half.cos(), 0.0),
+            Complex::new(-half.sin(), 0.0),
+            Complex::new(half.sin(), 0.0),
+            Complex::new(half.cos(), 0.0),
+        ];
+        Self {
+            kind: GateKind::Ry,
+            matrix,
+            arity: 1,
+            name: "RY".to_string(),
+        }
+    }
+
+    /// Rz Gate — rotation around Z-axis by theta
+    /// [[e^(-iθ/2), 0], [0, e^(iθ/2)]]
+    pub fn rz(theta: f64) -> Self {
+        let half = theta / 2.0;
+        let matrix = vec![
+            Complex::new(half.cos(), -half.sin()),
+            Complex::new(0.0, 0.0),
+            Complex::new(0.0, 0.0),
+            Complex::new(half.cos(), half.sin()),
+        ];
+        Self {
+            kind: GateKind::Rz,
+            matrix,
+            arity: 1,
+            name: "RZ".to_string(),
         }
     }
 
