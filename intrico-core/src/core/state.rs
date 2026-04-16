@@ -38,6 +38,12 @@ impl QuantumState {
     pub fn statevector_mut(&mut self) -> &mut Vec<Complex> {
         &mut self.statevector
     }
+
+    /// Returns the measurement probability for each basis state.
+    /// Element i = |amplitude_i|^2.
+    pub fn probabilities(&self) -> Vec<f64> {
+        self.statevector.iter().map(|amp| amp.norm_squared()).collect()
+    }
 }
 
 impl Display for QuantumState {
