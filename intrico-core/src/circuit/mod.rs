@@ -196,6 +196,30 @@ impl QuantumCircuit {
         self
     }
 
+    pub fn rx(&mut self, target: usize, theta: f64) -> &mut Self {
+        if target >= self.num_qubits {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::rx(theta));
+        self
+    }
+
+    pub fn ry(&mut self, target: usize, theta: f64) -> &mut Self {
+        if target >= self.num_qubits {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::ry(theta));
+        self
+    }
+
+    pub fn rz(&mut self, target: usize, theta: f64) -> &mut Self {
+        if target >= self.num_qubits {
+            panic!("Target qubit index out of bounds.")
+        }
+        self.add_gate(vec![target], QuantumGate::rz(theta));
+        self
+    }
+
     pub fn cx(&mut self, control: usize, target: usize) -> &mut Self {
         if control >= self.num_qubits || target >= self.num_qubits {
             panic!("Control or target qubit index out of bounds.")
