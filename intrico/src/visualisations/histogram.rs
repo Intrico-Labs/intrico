@@ -1,7 +1,26 @@
-//! Terminal histogram for sampling results
+//! Terminal histogram for sampling results.
+//!
+//! Renders a bar chart of [`SamplingResult`] outcome counts to stdout.
+//! Bar widths are scaled to the terminal width (falls back to 80 columns).
 
 use intrico_core::SamplingResult;
 
+/// Print a terminal bar chart of measurement outcome counts.
+///
+/// Each row shows a basis state bitstring, a proportional bar, the raw count,
+/// and its percentage of total shots. Rows are sorted lexicographically by
+/// bitstring. The bar column is capped at 40% of available terminal width.
+///
+/// Does nothing meaningful (prints a notice) if `result.counts` is empty.
+///
+/// # Example output
+///
+/// ```text
+/// Histogram (1000 shots)
+/// ──────────────────────
+///  |00⟩  ████████████████████    498 (49.80%)
+///  |11⟩  ████████████████████    502 (50.20%)
+/// ```
 pub fn plot_histogram(result: &SamplingResult) {
     if result.counts.is_empty() {
         println!("\n No measurement data to plot.\n");

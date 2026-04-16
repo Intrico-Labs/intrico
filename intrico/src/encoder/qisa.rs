@@ -1,3 +1,35 @@
+//! QISA (Quantum Instruction Set Architecture) encoder.
+//!
+//! Converts a [`QuantumCircuit`] into a compact binary blob (`.qisa` file) that can
+//! be transmitted to an [`intrico-node`] executor or stored on disk.
+//!
+//! # Binary layout
+//!
+//! ```text
+//! [ Header | Constants pool | Instructions | Footer ]
+//! ```
+//!
+//! - **Header** — qubit count, classical bit count, magic bytes.
+//! - **Constants pool** — ordered `ConstEntry` values referenced by `const_index`.
+//!   Used by parameterised gates (CP, Rx, Ry, Rz) to store `f64` rotation angles.
+//! - **Instructions** — one entry per node in the circuit DAG.
+//!   Always starts with `QInit` for each qubit, always ends with `QEnd`.
+//! - **Footer** — checksum / end-of-file marker.
+//!
+//! # Supported gates
+//!
+//! | [`GateKind`] | QISA instruction | Theta recovery |
+//! |---|---|---|
+//! | H / X / Y / Z | `H` / `X` / `Y` / `Z` | — |
+//! | CX | `CNOT` | — |
+//! | Swap | `SWAP` | — |
+//! | CP | `CPHASE { const_index }` | `atan2(imag, real)` of `matrix[15]` |
+//! | Rx | `RX { const_index }` | `-imag(matrix[1]) × 2` |
+//! | Ry | `RY { const_index }` | `asin(real(matrix[2])) × 2` |
+//! | Rz | `RZ { const_index }` | `atan2(imag, real)` of `matrix[3]` × 2 |
+//!
+//! S, T, and Custom gates are not supported by QISA and return `Err`.
+
 use qisa::core::{
     constant::{ConstEntry, ConstKind},
     footer::Footer,
@@ -8,9 +40,19 @@ use qisa::core::{
 
 use intrico_core::{GateKind, Operation, QuantumCircuit};
 
+/// Encodes a [`QuantumCircuit`] to QISA bytecode.
 pub struct QisaEncoder {}
 
 impl QisaEncoder {
+    /// Compile `circuit` to a QISA binary blob.
+    ///
+    /// Returns the raw bytes of the `.qisa` program, which can be written to a file
+    /// and executed by `intrico-node`.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err("Unsupported gate type")` if the circuit contains a gate that
+    /// has no QISA opcode (currently: S, T, Custom).
     pub fn encode(circuit: &QuantumCircuit) -> Result<Vec<u8>, &'static str> {
         let header = Header::new(circuit.num_qubits() as u32, circuit.classical_regs() as u32);
 

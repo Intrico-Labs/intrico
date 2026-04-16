@@ -1,8 +1,42 @@
-//! # 🚀 Intrico
+//! # Intrico
 //!
-//! ### High-performance quantum computing library for Rust
-//! **Simulate quantum circuits with precision and speed**
+//! High-performance quantum computing simulation library for Rust.
 //!
+//! Intrico provides a statevector-based quantum circuit simulator with a DAG-backed
+//! circuit representation. It is the user-facing layer over [`intrico_core`], adding
+//! higher-level helpers, built-in algorithms, visualisation, and QISA bytecode encoding.
+//!
+//! # Quick start
+//!
+//! ```rust
+//! use intrico::{QuantumCircuit, execute, sample, plot_histogram};
+//!
+//! // Build a Bell-pair circuit
+//! let mut qc = QuantumCircuit::new(2);
+//! qc.h(0).cx(0, 1).measure_all();
+//!
+//! // Single shot
+//! let result = execute(&qc);
+//!
+//! // Multi-shot sampling
+//! let samples = sample(&qc, 1000);
+//! plot_histogram(&samples);
+//! ```
+//!
+//! # Modules
+//!
+//! - [`encoder`] — compile circuits to QISA bytecode for `intrico-node` dispatch.
+//! - [`library`] — pre-built algorithms: [`library::qft::QFT`].
+//! - [`visualisations`] — terminal output: [`plot_histogram`].
+//!
+//! # Re-exports
+//!
+//! All core types from `intrico-core` are re-exported here so users only need a
+//! single `intrico` dependency:
+//!
+//! [`QuantumCircuit`], [`QuantumGate`], [`GateKind`], [`QuantumState`],
+//! [`ClassicalRegister`], [`ExecutionContext`], [`MeasurementResult`],
+//! [`SamplingResult`], [`ExecutionTime`], [`Operation`], [`QuantumNode`], [`Complex`].
 
 pub mod encoder;
 pub mod library;
@@ -26,7 +60,25 @@ pub use intrico_core::{
 
 pub use visualisations::plot_histogram;
 
-/// Execute a circuit once, returning the statevector and classical register.
+/// Execute a circuit once and return the full simulation result.
+///
+/// Creates a fresh `|0...0⟩` state, applies all gates, collapses measurements
+/// probabilistically, and returns the final [`MeasurementResult`].
+///
+/// For repeated execution use [`sample`], which has an optimised path for
+/// circuits where all measurements are at the end.
+///
+/// # Example
+///
+/// ```rust
+/// use intrico::{QuantumCircuit, execute};
+///
+/// let mut qc = QuantumCircuit::new(1);
+/// qc.h(0).measure(0, 0);
+///
+/// let result = execute(&qc);
+/// println!("{}", result.classical_register.bitstring()); // "0" or "1"
+/// ```
 pub fn execute(circuit: &QuantumCircuit) -> MeasurementResult {
     use std::time::Instant;
     let start = Instant::now();
@@ -41,7 +93,30 @@ pub fn execute(circuit: &QuantumCircuit) -> MeasurementResult {
     }
 }
 
-/// Sample a circuit over `shots` executions, returning outcome counts.
+/// Sample a circuit over `shots` executions and return aggregated outcome counts.
+///
+/// Returns a [`SamplingResult`] whose `counts` map each measurement bitstring to
+/// how many times that outcome was observed.
+///
+/// # Optimisation
+///
+/// When all measurements are at the end of the circuit (detected via
+/// [`QuantumCircuit::has_terminal_measurements_only`]), gates are applied only
+/// **once** and outcomes are drawn directly from the resulting probability
+/// distribution — O(2^n + shots) instead of O(shots × 2^n). For circuits with
+/// mid-circuit measurements the full circuit is re-executed every shot.
+///
+/// # Example
+///
+/// ```rust
+/// use intrico::{QuantumCircuit, sample, plot_histogram};
+///
+/// let mut qc = QuantumCircuit::new(2);
+/// qc.h(0).cx(0, 1).measure_all();
+///
+/// let result = sample(&qc, 1024);
+/// plot_histogram(&result);
+/// ```
 pub fn sample(circuit: &QuantumCircuit, shots: usize) -> SamplingResult {
     use std::collections::HashMap;
     use std::time::Instant;
