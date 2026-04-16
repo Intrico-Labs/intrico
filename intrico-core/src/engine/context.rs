@@ -111,7 +111,7 @@ impl ExecutionContext {
     }
 }
 
-/// Helper functions for statevector manipulation
+// Helper functions for statevector manipulation
 
 pub(crate) fn measure_qubit(state: &mut [Complex], qubit: usize, dim: usize, rng: &mut impl Rng) -> usize {
     let stride = 1 << qubit;
@@ -171,8 +171,8 @@ pub(crate) fn apply_single_qubit_gate(matrix: &[Complex], state: &mut [Complex],
 
         while i0 < limit {
             let i1 = i0 + stride;
-            let a0 = state[i0].clone();
-            let a1 = state[i1].clone();
+            let a0 = state[i0];
+            let a1 = state[i1];
 
             state[i0] = matrix[0] * a0 + matrix[1] * a1;
             state[i1] = matrix[2] * a0 + matrix[3] * a1;

@@ -52,10 +52,10 @@ impl QuantumCircuit {
         let mut parents: Vec<usize> = vec![];
 
         // Auto-update classical register count
-        if let Operation::Measure { classical_bit, .. } = &operation {
-            if *classical_bit >= self.classical_regs {
-                self.classical_regs = classical_bit + 1;
-            }
+        if let Operation::Measure { classical_bit, .. } = &operation
+            && *classical_bit >= self.classical_regs
+        {
+            self.classical_regs = classical_bit + 1;
         }
 
         // Determine which qubits this operation touches
@@ -66,10 +66,10 @@ impl QuantumCircuit {
 
         // Finding parents and updating frontier for each qubit
         for &q in &qubits {
-            if let Some(i) = self.frontier[q] {
-                if !parents.contains(&i) {
-                    parents.push(i);
-                }
+            if let Some(i) = self.frontier[q]
+                && !parents.contains(&i)
+            {
+                parents.push(i);
             }
             self.frontier[q] = Some(node_id);
         }
@@ -253,7 +253,7 @@ impl QuantumCircuit {
         self
     }
 
-    /// Measurement builder functions
+    // Measurement builder functions
 
     pub fn measure(&mut self, qubit: usize, classical_bit: usize) -> &mut Self {
         if qubit >= self.num_qubits {

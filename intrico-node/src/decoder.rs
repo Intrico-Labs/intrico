@@ -30,27 +30,25 @@ pub fn decode_program(program: &Program) -> Result<QuantumCircuit, String> {
             Instruction::CPHASE { q1, q2, const_index } => {
                 let entry = program.constants.get(*const_index as usize)
                     .ok_or_else(|| format!("CPHASE const_index {} out of bounds", const_index))?;
-                let theta = match entry.kind {
-                    ConstKind::F64(v) => v,
-                };
+                let ConstKind::F64(theta) = entry.kind;
                 circuit.cp(*q1 as usize, *q2 as usize, theta);
             }
             Instruction::RX { qubit, const_index } => {
                 let entry = program.constants.get(*const_index as usize)
                     .ok_or_else(|| format!("RX const_index {} out of bounds", const_index))?;
-                let theta = match entry.kind { ConstKind::F64(v) => v };
+                let ConstKind::F64(theta) = entry.kind;
                 circuit.rx(*qubit as usize, theta);
             }
             Instruction::RY { qubit, const_index } => {
                 let entry = program.constants.get(*const_index as usize)
                     .ok_or_else(|| format!("RY const_index {} out of bounds", const_index))?;
-                let theta = match entry.kind { ConstKind::F64(v) => v };
+                let ConstKind::F64(theta) = entry.kind;
                 circuit.ry(*qubit as usize, theta);
             }
             Instruction::RZ { qubit, const_index } => {
                 let entry = program.constants.get(*const_index as usize)
                     .ok_or_else(|| format!("RZ const_index {} out of bounds", const_index))?;
-                let theta = match entry.kind { ConstKind::F64(v) => v };
+                let ConstKind::F64(theta) = entry.kind;
                 circuit.rz(*qubit as usize, theta);
             }
             Instruction::Measure { qubit, classical } => {

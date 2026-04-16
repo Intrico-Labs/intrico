@@ -29,12 +29,13 @@ impl QFT {
     /// # Panics
     ///
     /// Panics if `num_qubits == 0`.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(num_qubits: usize) -> QuantumCircuit {
         let mut qc = QuantumCircuit::new(num_qubits);
 
         for i in (0..num_qubits).rev() {
             for k in ((i+1)..num_qubits).rev() {
-                let exp = (2 as u32).pow((k-1) as u32);
+                let exp = 2_u32.pow((k-1) as u32);
                 qc.cp(k, i, PI / exp as f64);
             }
 
