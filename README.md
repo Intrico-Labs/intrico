@@ -18,7 +18,7 @@ Add Intrico to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-intrico = "2.0.1"
+intrico = "2.1.1"
 ```
 
 Or install using cargo:
