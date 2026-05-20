@@ -27,10 +27,20 @@ Or install using cargo:
 cargo add intrico
 ```
 
+## Workspace
+
+This repository is a Cargo workspace with three crates:
+
+| Crate | Description |
+| --- | --- |
+| [`intrico-sdk`](intrico-sdk) | User-facing SDK. Re-exports all core types and adds higher-level helpers, built-in algorithms (QFT), terminal visualisations, and QISA bytecode encoding. This is the crate users depend on (`intrico` on crates.io). |
+| [`intrico-core`](intrico-core) | Internal execution engine. Statevector simulation, gate definitions, DAG circuit representation, and `ExecutionContext`. Not intended for direct use. |
+| [`intrico-node`](intrico-node) | Standalone CLI executor. Reads a `.qisa` bytecode file produced by `intrico-sdk`'s encoder and runs it through the simulation engine. |
+
 ## Examples
 
-| Example                   | Description                                 | Link                                      |
-| ------------------------- | ------------------------------------------- | ----------------------------------------- |
-| Bell Pair                 | Create and measure an entangled Bell state  | [bell_pair.rs](examples/bell_pair.rs)     |
-| Quantum Fourier Transform | Prepare and evolve a state using QFT        | [qft.rs](examples/qft.rs)                 |
-| QISA Encoder              | Encode a Quantum Circuit into QISA Bytecode | [qisa_encode.rs](examples/qisa_encode.rs) |
+| Example | Description | Link |
+| --- | --- | --- |
+| Bell Pair | Create and measure an entangled Bell state | [bell_pair.rs](intrico-sdk/examples/bell_pair.rs) |
+| Quantum Fourier Transform | Prepare and evolve a state using QFT | [qft.rs](intrico-sdk/examples/qft.rs) |
+| QISA Encoder | Encode a quantum circuit into QISA bytecode | [qisa_encode.rs](intrico-sdk/examples/qisa_encode.rs) |
